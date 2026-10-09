@@ -16,7 +16,7 @@ public class PlayerLocomotion : MonoBehaviour
     private CharacterController _characterController;
 
     [Tooltip("moveInput logs the input from the chosen device and feeds it to currentMovement to drive the player in the direction of the input")]
-    private Vector2 _moveInput;
+    public Vector2 moveInput;
     private Vector3 _currentMovement;
 
     [Header("Stamina Settings")]
@@ -37,13 +37,13 @@ public class PlayerLocomotion : MonoBehaviour
     private float _currentSpeed => _walkSpeed * (_sprintActive ? sprintMultiplier : 1);
     
     [Tooltip("This variable is used for input registration")]
-     private bool _isSprinting;
+     public bool _isSprinting;
 
     [Header("Jump Settings")]
     [SerializeField] float _jumpForce = 5f;
     [SerializeField] float gravityMultiplier = 1f;
     [Tooltip("This variable is used for input registration")]
-    private bool _jumpTriggered;
+    public bool _jumpTriggered;
 
     [Header("Rotation Settings")]
     [SerializeField] float mouseSensitivity = 0.1f;
@@ -54,7 +54,7 @@ public class PlayerLocomotion : MonoBehaviour
     float verticalRotation;
     private bool updatingRotation = true;
     [Tooltip("This variable is used for input registration")]
-    private Vector2 lookInput;
+    public Vector2 lookInput;
 
     private void Awake()
     {
@@ -65,18 +65,18 @@ public class PlayerLocomotion : MonoBehaviour
     private void Update()
     {
         handleMovement();
-        handleRotation();
         regenerateStamina();
+        handleRotation();
     }
     #region Movement
     public void OnMove(InputAction.CallbackContext context){
-        _moveInput = context.ReadValue<Vector2>();
+        moveInput = context.ReadValue<Vector2>();
     }
     // purpose of this function is to calculate which direction the player is moving in and ensuring that the player moves in the direction that they are looking in.
     private Vector3 calculateWorldDirecion()
     {
-        Vector3 inputDirection = new Vector3(_moveInput.x,0,_moveInput.y);
-        Vector2 worldDirection = transform.TransformDirection(inputDirection);
+        Vector3 inputDirection = new Vector3(moveInput.x,0,moveInput.y);
+        Vector3 worldDirection = transform.TransformDirection(inputDirection);
         return worldDirection.normalized;
     }
     private void handleMovement(){
@@ -162,14 +162,15 @@ public class PlayerLocomotion : MonoBehaviour
 
     private void handleRotation(){
         if(!updatingRotation) return;
-
-        switch(_playerInput.currentControlScheme){
+        switch (_playerInput.currentControlScheme)
+        {
             case "Mouse & Keyboard":
                 float mouseXRotation = lookInput.x * mouseSensitivity;
                 float mouseYRotation = lookInput.y * mouseSensitivity;
                 applyHorizontalRotation(mouseXRotation);
                 applyVerticalRotation(mouseYRotation);
                 break;
+
             case "Gamepad":
                 float gamepadXRotation = lookInput.x * gamepadSensitivity;
                 float gamepadYRotation = lookInput.y * gamepadSensitivity;
@@ -180,7 +181,31 @@ public class PlayerLocomotion : MonoBehaviour
     }
     #endregion Rotation
 
-    
+    #region Networking Reference Getters
+    public Vector2 getMovement(Vector2 move)
+    {
+        moveInput = move;   
+        return move;
+    }
+    public Vector2 getLookRotation(Vector2 look)
+    {
+        lookInput = look;
+        return look;
+    }
+    public bool getJumpBool(bool isJumping)
+    {
+        _jumpTriggered = isJumping;
+        return isJumping;
 
-    
+    }
+    public bool getSprintBool(bool isSprinting)
+    {
+        _isSprinting = isSprinting;
+        return isSprinting;
+    }
+    #endregion Networking Reference Getters
+
+
+
+
 }
