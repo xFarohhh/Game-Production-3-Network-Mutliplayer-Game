@@ -1,11 +1,12 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
+using Unity.Netcode;
 //Note for this script to function as intended the Gameobject that this is attached to must have the following: A Character Controller, PlayerInput setup for Unity Events. 
 // And then assign the events to the corresponding actions
 
 // Also note this movement script is made to accomodate sprinting if you do not want the player to sprint remove the sprintVariables and the sprint region. 
 // After deleting those you want to navigate to the movement region and change all "currentSpeed" Variables to walkSpeed
-public class PlayerLocomotion : MonoBehaviour
+public class PlayerLocomotion : NetworkBehaviour
 {
 
     [Header("Player Input Asset")]
@@ -64,10 +65,28 @@ public class PlayerLocomotion : MonoBehaviour
 
     private void Update()
     {
+        if (!IsOwner) return;
+
         handleMovement();
         handleRotation();
         regenerateStamina();
     }
+    public override void OnNetworkSpawn()
+{
+    bool isLocalPlayer = IsOwner;
+
+    _playerInput.enabled = isLocalPlayer;
+    _characterController.enabled = isLocalPlayer;
+
+    if (!isLocalPlayer)
+    {
+        // Tint the other player red so you can tell them apart
+        Renderer r = GetComponentInChildren<Renderer>();
+        if (r != null) r.material.color = Color.red;
+    }
+
+    base.OnNetworkSpawn();
+}
     #region Movement
     public void OnMove(InputAction.CallbackContext context){
         _moveInput = context.ReadValue<Vector2>();
@@ -75,8 +94,8 @@ public class PlayerLocomotion : MonoBehaviour
     // purpose of this function is to calculate which direction the player is moving in and ensuring that the player moves in the direction that they are looking in.
     private Vector3 calculateWorldDirecion()
     {
-        Vector3 inputDirection = new Vector3(_moveInput.x,0,_moveInput.y);
-        Vector2 worldDirection = transform.TransformDirection(inputDirection);
+        Vector3 inputDirection = new Vector3(_moveInput.x, 0, _moveInput.y);
+        Vector3 worldDirection = transform.TransformDirection(inputDirection);  // ← Vector3 not Vector2
         return worldDirection.normalized;
     }
     private void handleMovement(){
@@ -91,16 +110,18 @@ public class PlayerLocomotion : MonoBehaviour
     public void OnJump(InputAction.CallbackContext context){
         _jumpTriggered = context.performed;
     }
-    private void handleJumping(){
-        if(_characterController.isGrounded){
+    private void handleJumping()
+    {
+        if (_characterController.isGrounded)
+        {
             _currentMovement.y = -.5f;
 
-            if(_jumpTriggered && Stamina >=1){
+            if (_jumpTriggered && Stamina >= 1)
+            {
                 takeStamina(20);
                 _currentMovement.y = _jumpForce;
             }
         }
-
         // applies gravity to the player
         else
         {
