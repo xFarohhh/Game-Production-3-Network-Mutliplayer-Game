@@ -72,21 +72,25 @@ public class PlayerLocomotion : NetworkBehaviour
         regenerateStamina();
     }
     public override void OnNetworkSpawn()
-{
-    bool isLocalPlayer = IsOwner;
-
-    _playerInput.enabled = isLocalPlayer;
-    _characterController.enabled = isLocalPlayer;
-
-    if (!isLocalPlayer)
     {
-        // Tint the other player red so you can tell them apart
-        Renderer r = GetComponentInChildren<Renderer>();
-        if (r != null) r.material.color = Color.red;
-    }
+        bool isLocalPlayer = IsOwner;
 
-    base.OnNetworkSpawn();
-}
+        _playerInput.enabled = isLocalPlayer;
+        _characterController.enabled = isLocalPlayer;
+
+        Camera cam = GetComponentInChildren<Camera>(true);
+        if (cam != null)
+        {
+            cam.enabled = isLocalPlayer;
+            AudioListener listener = cam.GetComponent<AudioListener>();
+            if (listener != null)
+                listener.enabled = isLocalPlayer;
+        }
+
+        Debug.Log($"[Spawn] ClientId={OwnerClientId} IsOwner={IsOwner} InputEnabled={_playerInput.enabled}");
+
+        base.OnNetworkSpawn();
+    }
     #region Movement
     public void OnMove(InputAction.CallbackContext context){
         _moveInput = context.ReadValue<Vector2>();
