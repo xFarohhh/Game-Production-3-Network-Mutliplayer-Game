@@ -203,9 +203,14 @@ public class PlayerLocomotion : MonoBehaviour
         _isSprinting = isSprinting;
         return isSprinting;
     }
+
+    public float getMouseSens()
+    {
+        return mouseSensitivity;
+    }
+    public float getGamepadSens()
+    {
+        return gamepadSensitivity;
+    }
     #endregion Networking Reference Getters
-
-
-
-
 }
