@@ -1,13 +1,9 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
-//Note for this script to function as intended the Gameobject that this is attached to must have the following: A Character Controller, PlayerInput setup for Unity Events. 
-// And then assign the events to the corresponding actions
+using Unity.Netcode;
 
-// Also note this movement script is made to accomodate sprinting if you do not want the player to sprint remove the sprintVariables and the sprint region. 
-// After deleting those you want to navigate to the movement region and change all "currentSpeed" Variables to walkSpeed
-public class PlayerLocomotion : MonoBehaviour
+public class PlayerLocomotion : NetworkBehaviour
 {
-
     [Header("Player Input Asset")]
     private PlayerInput _playerInput;
 
@@ -20,7 +16,7 @@ public class PlayerLocomotion : MonoBehaviour
     private Vector3 _currentMovement;
 
     [Header("Stamina Settings")]
-    [Range(0,100)]public float Stamina;
+    [Range(0, 100)] public float Stamina;
 
     [Tooltip("Stamina gain is the amount of stamina that the player gains after using an action that drains stamina")]
     [SerializeField] float _staminaGain;
@@ -35,9 +31,9 @@ public class PlayerLocomotion : MonoBehaviour
 
     private bool _sprintActive => _isSprinting && Stamina > 0;
     private float _currentSpeed => _walkSpeed * (_sprintActive ? sprintMultiplier : 1);
-    
+
     [Tooltip("This variable is used for input registration")]
-     public bool _isSprinting;
+    private bool _isSprinting;
 
     [Header("Jump Settings")]
     [SerializeField] float _jumpForce = 5f;
@@ -64,22 +60,52 @@ public class PlayerLocomotion : MonoBehaviour
 
     private void Update()
     {
+        if (!IsOwner) return;
+
+        PlayerStateManager state = GetComponent<PlayerStateManager>();
+        if (state != null && !state.CanMove()) return;
+
         handleMovement();
         regenerateStamina();
         handleRotation();
     }
-    #region Movement
-    public void OnMove(InputAction.CallbackContext context){
-        moveInput = context.ReadValue<Vector2>();
+
+    public override void OnNetworkSpawn()
+    {
+        bool isLocalPlayer = IsOwner;
+
+        _playerInput.enabled = isLocalPlayer;
+        _characterController.enabled = isLocalPlayer;
+
+        Camera cam = GetComponentInChildren<Camera>(true);
+        if (cam != null)
+        {
+            cam.enabled = isLocalPlayer;
+            AudioListener listener = cam.GetComponent<AudioListener>();
+            if (listener != null)
+                listener.enabled = isLocalPlayer;
+        }
+
+        Debug.Log($"[Spawn] ClientId={OwnerClientId} IsOwner={IsOwner} InputEnabled={_playerInput.enabled}");
+
+        base.OnNetworkSpawn();
     }
-    // purpose of this function is to calculate which direction the player is moving in and ensuring that the player moves in the direction that they are looking in.
+
+    #region Movement
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        _moveInput = context.ReadValue<Vector2>();
+    }
+
     private Vector3 calculateWorldDirecion()
     {
         Vector3 inputDirection = new Vector3(moveInput.x,0,moveInput.y);
         Vector3 worldDirection = transform.TransformDirection(inputDirection);
         return worldDirection.normalized;
     }
-    private void handleMovement(){
+
+    private void handleMovement()
+    {
         Vector3 worldDirection = calculateWorldDirecion();
         _currentMovement.x = worldDirection.x * _currentSpeed;
         _currentMovement.z = worldDirection.z * _currentSpeed;
@@ -88,72 +114,88 @@ public class PlayerLocomotion : MonoBehaviour
         _characterController.Move(_currentMovement * Time.deltaTime);
     }
 
-    public void OnJump(InputAction.CallbackContext context){
+    public void OnJump(InputAction.CallbackContext context)
+    {
         _jumpTriggered = context.performed;
     }
-    private void handleJumping(){
-        if(_characterController.isGrounded){
+
+    private void handleJumping()
+    {
+        if (_characterController.isGrounded)
+        {
             _currentMovement.y = -.5f;
 
-            if(_jumpTriggered && Stamina >=1){
+            if (_jumpTriggered && Stamina >= 1)
+            {
                 takeStamina(20);
                 _currentMovement.y = _jumpForce;
             }
         }
-
-        // applies gravity to the player
         else
         {
             _currentMovement.y += Physics.gravity.y * gravityMultiplier * Time.deltaTime;
         }
     }
-    public void OnSprint(InputAction.CallbackContext context){
+
+    public void OnSprint(InputAction.CallbackContext context)
+    {
         _isSprinting = context.ReadValueAsButton();
     }
     #endregion Movement
 
     #region Stamina
-    private void takeStamina(float amount){
+    private void takeStamina(float amount)
+    {
         Stamina -= amount;
-        // ensures that Stamina can never be negative.
-        if(Stamina <=0){
+        if (Stamina <= 0)
+        {
             Stamina = 0;
         }
     }
-    private void drainStamina(float amount){
+
+    private void drainStamina(float amount)
+    {
         Stamina -= (amount * Time.deltaTime);
-        if(Stamina <=0){
+        if (Stamina <= 0)
+        {
             Stamina = 0;
         }
     }
+
     private void regenerateStamina()
     {
         float regenerateDefaultTime = _regenerateDelay;
-        // only allows for the player to regnerate stamina if the timer has ran out.
-        if(Stamina < 0){
+        if (Stamina < 0)
+        {
             _regenerateDelay -= 1 * Time.deltaTime;
         }
-        if(_regenerateDelay <=0){
+        if (_regenerateDelay <= 0)
+        {
             Stamina += _staminaGain * Time.deltaTime;
         }
-        if(Stamina >= 100){
+        if (Stamina >= 100)
+        {
             Stamina = _maxStamina;
             _regenerateDelay = regenerateDefaultTime;
         }
-        if(_isSprinting || _jumpTriggered){
+        if (_isSprinting || _jumpTriggered)
+        {
             _regenerateDelay = regenerateDefaultTime;
         }
     }
     #endregion Stamina
 
     #region Rotation
-    public void OnLook(InputAction.CallbackContext context){
+    public void OnLook(InputAction.CallbackContext context)
+    {
         lookInput = context.ReadValue<Vector2>();
     }
+
     private void applyHorizontalRotation(float rotationAmount)
     {
         transform.Rotate(0, rotationAmount, 0);
     }
+
     private void applyVerticalRotation(float rotationAmount)
     {
         verticalRotation = Mathf.Clamp(verticalRotation - rotationAmount, -verticalRange, verticalRange);
