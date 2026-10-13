@@ -29,11 +29,11 @@ public class PlayerLocomotion : NetworkBehaviour
     [Header("Sprint Settings")]
     [SerializeField] float sprintMultiplier;
 
-    private bool _sprintActive => _isSprinting && Stamina > 0;
+    private bool _sprintActive => isSprinting && Stamina > 0;
     private float _currentSpeed => _walkSpeed * (_sprintActive ? sprintMultiplier : 1);
 
     [Tooltip("This variable is used for input registration")]
-    private bool _isSprinting;
+    public bool isSprinting;
 
     [Header("Jump Settings")]
     [SerializeField] float _jumpForce = 5f;
@@ -94,7 +94,7 @@ public class PlayerLocomotion : NetworkBehaviour
     #region Movement
     public void OnMove(InputAction.CallbackContext context)
     {
-        _moveInput = context.ReadValue<Vector2>();
+        moveInput = context.ReadValue<Vector2>();
     }
 
     private Vector3 calculateWorldDirecion()
@@ -139,7 +139,7 @@ public class PlayerLocomotion : NetworkBehaviour
 
     public void OnSprint(InputAction.CallbackContext context)
     {
-        _isSprinting = context.ReadValueAsButton();
+        isSprinting = context.ReadValueAsButton();
     }
     #endregion Movement
 
@@ -178,7 +178,7 @@ public class PlayerLocomotion : NetworkBehaviour
             Stamina = _maxStamina;
             _regenerateDelay = regenerateDefaultTime;
         }
-        if (_isSprinting || _jumpTriggered)
+        if (isSprinting || _jumpTriggered)
         {
             _regenerateDelay = regenerateDefaultTime;
         }
@@ -240,9 +240,9 @@ public class PlayerLocomotion : NetworkBehaviour
         return isJumping;
 
     }
-    public bool getSprintBool(bool isSprinting)
+    public bool getSprintBool(bool IsSprinting)
     {
-        _isSprinting = isSprinting;
+        isSprinting = IsSprinting;
         return isSprinting;
     }
 

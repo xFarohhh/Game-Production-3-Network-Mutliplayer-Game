@@ -42,6 +42,6 @@ public class ClientPlayerMove : NetworkBehaviour
         // The host owns its player and simulates it directly from local input, so no RPC is needed.
         if (!IsOwner || IsServer) return;
 
-        UpdateInputServerRpc(locomotion.moveInput, locomotion.lookInput, locomotion._jumpTriggered, locomotion._isSprinting);
+        UpdateInputServerRpc(locomotion.moveInput, locomotion.lookInput, locomotion._jumpTriggered, locomotion.isSprinting);
     }
 }
