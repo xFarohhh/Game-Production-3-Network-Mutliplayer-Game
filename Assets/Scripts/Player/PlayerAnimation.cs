@@ -6,12 +6,12 @@ public class PlayerAnimation : MonoBehaviour
     public Animator anim;
     private Vector2 movement;
     private Vector2 jump;
-    public float speed = 50.6f;
-    public float jumpSpeed = 4f;
-    private float jumpForce = 8.6f;
+    public float speed = 10.2f;
+    public float jumpSpeed = 2f;
+    private float jumpForce = 3f;
     public bool isRunning;
     private bool isGrounded = true;
-    private int moveSpeed = 50; 
+    private int moveSpeed = 6; 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -78,7 +78,7 @@ public class PlayerAnimation : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Plane"))
+        if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = true;
         }
