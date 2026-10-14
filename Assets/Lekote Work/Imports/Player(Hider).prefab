@@ -31,7 +31,8 @@ Transform:
   m_LocalPosition: {x: -0.0009999275, y: 0.65999997, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 9215895661675675324}
   m_Father: {fileID: 5066026958585655038}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!20 &8371438315158002905
@@ -176,7 +177,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5255004037475110052}
-  - {fileID: 9215895661675675324}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5944791537222338203
@@ -442,7 +442,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2739738744
+  GlobalObjectIdHash: 593480159
   InScenePlacedSourceGlobalObjectIdHash: 0
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
@@ -554,6 +554,7 @@ GameObject:
   - component: {fileID: 9215895661675675324}
   - component: {fileID: 4290748805431883111}
   - component: {fileID: 8359198122771418693}
+  - component: {fileID: 5080611080754169968}
   m_Layer: 3
   m_Name: Flashlight
   m_TagString: Untagged
@@ -569,12 +570,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8498846317815838149}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.8400003, y: -0.548, z: 0.99000025}
+  m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: -0.30000013, y: -0.15999997, z: -0.029000074}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5066026958585655038}
+  m_Father: {fileID: 5255004037475110052}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!108 &4290748805431883111
 Light:
@@ -587,9 +588,9 @@ Light:
   serializedVersion: 13
   m_Type: 0
   m_Color: {r: 0.963957, g: 1, b: 0.5641509, a: 1}
-  m_Intensity: 500
-  m_Range: 100
-  m_SpotAngle: 53.353012
+  m_Intensity: 447.5
+  m_Range: 99.90608
+  m_SpotAngle: 62.408913
   m_InnerSpotAngle: 20.245687
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
@@ -670,3 +671,17 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!114 &5080611080754169968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8498846317815838149}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a9196d6372a4ad4681c3a9e11d48b51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashlightHolder
+  cameraTransform: {fileID: 5255004037475110052}
+  offset: {x: 0.2, y: -0.2, z: 0.3}

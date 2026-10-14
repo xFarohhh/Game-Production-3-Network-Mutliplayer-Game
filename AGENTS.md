@@ -1,8 +1,8 @@
 <!-- UNITY CODE ASSIST INSTRUCTIONS START -->
 - Project name: Game-Production-3-Network-Mutliplayer-Game
-- Unity version: Unity 6000.3.10f1
+- Unity version: Unity 6000.5.6f1
 - Active game object:
-  - Name: Wall (2)
+  - Name: Flashlight
   - Tag: Untagged
-  - Layer: Wall
+  - Layer: 3
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
