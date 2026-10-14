@@ -2,11 +2,12 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-// Converts the built-in-pipeline (Standard shader) materials of the Abandoned Asylum pack
-// to Universal Render Pipeline/Lit. Run via Tools > Asylum > Convert Materials To URP.
+// Converts built-in-pipeline (Standard / Standard Specular) materials in the third-party packs
+// (Abandoned Asylum, Flashlight, ...) to Universal Render Pipeline/Lit.
+// Run via Tools > Asylum > Convert Materials To URP.
 public static class AsylumURPConverter
 {
-    const string MaterialsFolder = "Assets/Abandoned_Asylum";
+    const string MaterialsFolder = "Assets/KeaganWork/ThirdParty";
 
     [MenuItem("Tools/Asylum/Convert Materials To URP")]
     public static void Convert()
