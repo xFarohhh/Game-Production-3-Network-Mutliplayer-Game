@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
+using UnityEngine.UI;
+using TMPro;
 
 public class PlayerLocomotion : NetworkBehaviour
 {
@@ -51,6 +53,16 @@ public class PlayerLocomotion : NetworkBehaviour
     private bool updatingRotation = true;
     [Tooltip("This variable is used for input registration")]
     public Vector2 lookInput;
+
+    [Header("Flashlight Settings")]
+    [SerializeField] float currentBatteryLife;
+    [SerializeField] float maxBatteryLife = 100;
+    [SerializeField] float batteryRegenSpeed = 2.5f;
+    [SerializeField] float batteryDrainSpeed = 4f;
+    [SerializeField] Slider batterSlider;
+    [SerializeField] TextMeshProUGUI batteryLifeText;
+    [SerializeField] Light light;
+    [SerializeField] bool isFlashLightActive;
 
     private void Awake()
     {
@@ -222,6 +234,28 @@ public class PlayerLocomotion : NetworkBehaviour
         }
     }
     #endregion Rotation
+
+    #region Flashlight
+    public void OnActivateFlashLight(InputAction.CallbackContext context)
+    {
+        isFlashLightActive = context.performed;
+    }
+
+    private void handleFlashLightBattery()
+    {
+        if(isFlashLightActive)
+        {
+            light.enabled = true;
+            currentBatteryLife = Mathf.Max(0, currentBatteryLife -= batteryDrainSpeed * Time.deltaTime);
+        }
+        else if(!isFlashLightActive || isSprinting)
+        {
+            light.enabled = false;
+            currentBatteryLife = Mathf.Max(currentBatteryLife += batteryRegenSpeed * Time.deltaTime, maxBatteryLife);
+        }
+       
+    }
+    #endregion Flashlight
 
     #region Networking Reference Getters
     public Vector2 getMovement(Vector2 move)
