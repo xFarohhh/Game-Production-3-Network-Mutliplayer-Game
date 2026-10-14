@@ -3,6 +3,8 @@ using UnityEngine.InputSystem;
 using Unity.Netcode;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;      // ADDED: list of every spawned player (used by the flashlight kill scan)
+using Unity.Netcode.Components;
 
 public class PlayerLocomotion : NetworkBehaviour
 {
@@ -73,12 +75,18 @@ public class PlayerLocomotion : NetworkBehaviour
     [SerializeField] GameObject PlayerHumanMesh;
     [SerializeField] GameObject playerDustMesh;
 
+    private NetworkVariable<bool> netIsDead = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    private NetworkVariable<bool> netFlashlightOn = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    private NetworkVariable<float> netPitch = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    private static readonly List<PlayerLocomotion> AllPlayers = new List<PlayerLocomotion>();
+
     private void Awake()
     {
         _playerInput = GetComponent<PlayerInput>();
         _characterController = GetComponent<CharacterController>();
-        anim = GetComponent<Animator>();
+   
     }
+
 
     private void Update()
     {
@@ -94,23 +102,7 @@ public class PlayerLocomotion : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        bool isLocalPlayer = IsOwner;
-
-        _playerInput.enabled = isLocalPlayer;
-        _characterController.enabled = isLocalPlayer;
-
-        Camera cam = GetComponentInChildren<Camera>(true);
-        if (cam != null)
-        {
-            cam.enabled = isLocalPlayer;
-            AudioListener listener = cam.GetComponent<AudioListener>();
-            if (listener != null)
-                listener.enabled = isLocalPlayer;
-        }
-
-        Debug.Log($"[Spawn] ClientId={OwnerClientId} IsOwner={IsOwner} InputEnabled={_playerInput.enabled}");
-
-        base.OnNetworkSpawn();
+        
     }
 
     #region Movement
@@ -131,9 +123,6 @@ public class PlayerLocomotion : NetworkBehaviour
         Vector3 worldDirection = calculateWorldDirecion();
         _currentMovement.x = worldDirection.x * _currentSpeed;
         _currentMovement.z = worldDirection.z * _currentSpeed;
-        
-        anim.SetFloat("Horizontal", _currentMovement.x);
-        anim.SetFloat("Vertical", _currentMovement.z);
 
         handleJumping();
         _characterController.Move(_currentMovement * Time.deltaTime);
@@ -256,17 +245,27 @@ public class PlayerLocomotion : NetworkBehaviour
 
     private void handleFlashLightBattery()
     {
-        if(isFlashLightActive)
+      bool lightOn = isFlashLightActive && !isPlayerDead && currentBatteryLife > 0 && !isSprinting && !_jumpTriggered;
+
+        if (lightOn)
         {
-            light.enabled = true;
-            currentBatteryLife = Mathf.Max(0, currentBatteryLife -= batteryDrainSpeed * Time.deltaTime);
+            currentBatteryLife = Mathf.Max(0, currentBatteryLife - batteryDrainSpeed * Time.deltaTime); // drains batter life over time
         }
-        else if(!isFlashLightActive || isSprinting || _jumpTriggered)
+        else
         {
-            light.enabled = false;
-            currentBatteryLife = Mathf.Max(currentBatteryLife += batteryRegenSpeed * Time.deltaTime, maxBatteryLife);
+            currentBatteryLife = Mathf.Min(maxBatteryLife, currentBatteryLife + batteryRegenSpeed * Time.deltaTime);
         }
- 
+        handleFlashLight(lightOn);
+
+
+    }
+
+    private void handleFlashLight(bool isOn)
+    {
+        if(light != null)
+        {
+            light.enabled = isOn && !isPlayerDead;
+        }
     }
     #endregion Flashlight
 
@@ -302,4 +301,14 @@ public class PlayerLocomotion : NetworkBehaviour
         return gamepadSensitivity;
     }
     #endregion Networking Reference Getters
+
+    public void respawn()
+    {
+        
+    }
+
+    public void spawnPlayer()
+    {
+
+    }
 }
