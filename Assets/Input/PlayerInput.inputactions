@@ -57,19 +57,9 @@
                     "priority": 0
                 },
                 {
-                    "name": "Shoot",
+                    "name": "Flashlight",
                     "type": "Button",
-                    "id": "d46ae32a-4d2a-4392-bb56-a88c65f89d40",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false,
-                    "priority": 0
-                },
-                {
-                    "name": "Reload",
-                    "type": "Button",
-                    "id": "fdf408e7-39d9-4e98-bdda-4433036807dc",
+                    "id": "0c0766fe-1bb7-4f08-aa44-651bc31d57b2",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -234,45 +224,23 @@
                 },
                 {
                     "name": "",
-                    "id": "8424619e-3dda-42ad-838c-5183b6558e96",
+                    "id": "a4bfa54c-379e-4a2d-bfc5-8c74a5e45429",
                     "path": "<Gamepad>/rightTrigger",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Gamepad",
-                    "action": "Shoot",
+                    "action": "Flashlight",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "920a71dc-5a2e-4763-a163-3b62f1020eaa",
+                    "id": "4c037584-cd4d-4c19-a4fe-bd0215e0181e",
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Mouse & Keyboard",
-                    "action": "Shoot",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "a1b3ed02-7c09-4994-91d2-b2cadb6c718a",
-                    "path": "<Gamepad>/buttonWest",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "Reload",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "044f0963-3f75-4763-ad6a-f5d35d356548",
-                    "path": "<Keyboard>/r",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Mouse & Keyboard",
-                    "action": "Reload",
+                    "action": "Flashlight",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
