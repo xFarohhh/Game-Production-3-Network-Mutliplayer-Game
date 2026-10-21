@@ -3,16 +3,25 @@ using UnityEngine.InputSystem;
 
 public class MonsterLocomotion : MonoBehaviour
 {
+    public Rigidbody rb;
     [Header("Player Input Asset")]
     private PlayerInput _playerInput;
 
     [Header("Player Movement Settings")]
     [SerializeField] float _walkSpeed;
-    private CharacterController _characterController;
+    //private CharacterController _characterController;
 
     [Tooltip("moveInput logs the input from the chosen device and feeds it to currentMovement to drive the player in the direction of the input")]
     public Vector2 moveInput;
+
+    private Vector2 jump;
+    private Vector2 attack;
+
+    private float jumpSpeed = 9.2f;
+    private float jumpForce = 12.2f;
     private Vector3 _currentMovement;
+    private Vector2 walkInput;
+    public bool isWalking;
 
     [Header("Stamina Settings")]
     [Range(0, 100)] public float Stamina;
@@ -45,10 +54,23 @@ public class MonsterLocomotion : MonoBehaviour
     [Tooltip("This variable is used for input registration")]
     public Vector2 lookInput;
 
+    [SerializeField] Transform groundCheck;
+    [SerializeField] float groundDistance = 0.02f;
+    [SerializeField] LayerMask groundLayer;
+
+    public Animator anim;
+    private int moveSpeed = 6;
+    public bool isGrounded;
+    public bool isAttacking;
+    public bool isJumping;
     private void Awake()
     {
         _playerInput = GetComponent<PlayerInput>();
-        _characterController = GetComponent<CharacterController>();
+       // _characterController = GetComponent<CharacterController>();
+        rb = GetComponent<Rigidbody>();
+        anim = GetComponent<Animator>();
+
+       
     }
 
     private void Update()
@@ -56,38 +78,152 @@ public class MonsterLocomotion : MonoBehaviour
         handleMovement();
         regenerateStamina();
         handleRotation();
+
+       
+
+        if (moveInput.magnitude > 0.1)
+        {
+            anim.SetBool("isRunning", true);
+
+        }
+
+        else
+        {
+            anim.SetBool("isRunning", false);
+        }
+
+        if (moveInput.magnitude > 0.1)
+        {
+            anim.SetBool("isWalking", true);
+        }
+
+        else
+        {
+            anim.SetBool("isWalking", false);
+        }
+
+        anim.SetBool("isGrounded", !isGrounded);
+        anim.SetBool("isJumping", isJumping);
+       
+
+        Debug.Log(moveInput);
+     
+       
     }
+
+    private void FixedUpdate()
+    {
+        Move();
+        Debug.Log(moveInput);
+        Debug.Log(jump);
+      
+        Debug.Log(walkInput);
+
+      
+    }
+
     #region Movement
     public void OnMove(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
     }
     // purpose of this function is to calculate which direction the player is moving in and ensuring that the player moves in the direction that they are looking in.
-    private Vector3 calculateWorldDirecion()
+   /* private Vector3 calculateWorldDirecion()
     {
         Vector3 inputDirection = new Vector3(moveInput.x, 0, moveInput.y);
         Vector3 worldDirection = transform.TransformDirection(inputDirection);
         return worldDirection.normalized;
+    }*/
+
+    public void Move()
+    {
+        //Vector3 movement = new Vector3(moveInput.x, 0f, moveInput.y);
+
+        //in order to prevent diagonal movement
+        //rb.linearVelocity = new Vector3 (moveInput.x * _currentSpeed, rb.linearVelocity.y, moveInput.y * _currentSpeed);
+
+        rb.linearVelocity = new Vector3(moveInput.x * moveSpeed, rb.linearVelocity.y, moveInput.y * moveSpeed);
+
     }
+
     private void handleMovement()
     {
-        Vector3 worldDirection = calculateWorldDirecion();
-        _currentMovement.x = worldDirection.x * _currentSpeed;
-        _currentMovement.z = worldDirection.z * _currentSpeed;
+        /* Vector3 worldDirection = calculateWorldDirecion();
+         _currentMovement.x = worldDirection.x * _currentSpeed;
+         _currentMovement.z = worldDirection.z * _currentSpeed;
 
-        _characterController.Move(_currentMovement * Time.deltaTime);
+         _characterController.Move(_currentMovement * Time.deltaTime);*/
     }
 
     public void OnSprint(InputAction.CallbackContext context)
     {
         _isSprinting = context.ReadValueAsButton();
     }
+
+    public void JumpInput(InputAction.CallbackContext context)
+    {
+        if (context.performed && isGrounded)
+        {
+            Jump();
+
+        }
+
+        Debug.Log(jump);
+    }
+
+    public void Jump()
+    {
+            if (!isGrounded)
+            return;
+
+        //downward velocity should be excluded before the jump takes place
+
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+
+        rb.AddForce(jumpSpeed * transform.up, ForceMode.Impulse);
+        isGrounded = false;
+        isJumping = true;
+
+        Debug.Log("jump is triggered");
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+       if (collision.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = true;
+            isJumping = false;
+
+       
+        }
+    }
+
+
+
+   /* private void OnDrawGizmos()
+    {
+        if (groundCheck == null) return;
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(groundCheck.position, groundDistance);
+    }*/
+
+
+    /*private void OnTriggerEnter(Collider collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = true;
+        }
+    }*/
+
     #endregion Movement
+
 
     #region Stamina
     private void takeStamina(float amount)
     {
-        Stamina -= amount;
+       /* Stamina -= amount;
         // ensures that Stamina can never be negative.
         if (Stamina <= 0)
         {
@@ -100,13 +236,13 @@ public class MonsterLocomotion : MonoBehaviour
         if (Stamina <= 0)
         {
             Stamina = 0;
-        }
+        }*/
     }
     private void regenerateStamina()
     {
         float regenerateDefaultTime = _regenerateDelay;
         // only allows for the player to regnerate stamina if the timer has ran out.
-        if (Stamina < 0)
+        /*if (Stamina < 0)
         {
             _regenerateDelay -= 1 * Time.deltaTime;
         }
@@ -118,7 +254,7 @@ public class MonsterLocomotion : MonoBehaviour
         {
             Stamina = _maxStamina;
             _regenerateDelay = regenerateDefaultTime;
-        }
+        }*/
     }
     #endregion Stamina
 
@@ -184,5 +320,38 @@ public class MonsterLocomotion : MonoBehaviour
     {
         return gamepadSensitivity;
     }
-    #endregion
+    #endregion Networking References Getters 
+
+    #region Attack
+    public void AttackInput(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            Attack1();
+        }
+        attack = context.ReadValue<Vector2>();
+    }
+
+    public void Attack1LSpikeInput(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            Attack1LSpike();
+        }
+        attack = context.ReadValue<Vector2>();
+    }
+
+    public void Attack1()
+    {
+        anim.SetBool("isAttacking", true);
+    }
+
+    public void Attack1LSpike()
+    {
+        anim.SetBool("isAttacking", true);
+    }
+
+    #endregion Attack
+
+
 }
