@@ -484,7 +484,19 @@ MonoBehaviour:
     m_ActionId: f84c067c-ff14-4c99-bcde-8d2e7773a9b6
     m_ActionName: 'Monster Player/Jump[/Keyboard/x]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 729055945}
+        m_TargetAssemblyTypeName: MonsterLocomotion, Assembly-CSharp
+        m_MethodName: AttackInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 74135a6e-f847-4688-b6d7-a30320c72578
     m_ActionName: Monster Player/Attack
   - m_PersistentCalls:
@@ -511,6 +523,26 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: d86a2305-a426-45ea-9a8e-66dd189d6a82
     m_ActionName: 'Monster Player/Attack1LSpike[/Keyboard/c]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: c54a180e-8432-490a-b2fa-ac00606e789c
+    m_ActionName: 'Monster Player/Rage[/Keyboard/e]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 729055945}
+        m_TargetAssemblyTypeName: MonsterLocomotion, Assembly-CSharp
+        m_MethodName: Attack1RSpikeInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 24ac4b5f-a960-42e4-9673-68bfe6df2bae
+    m_ActionName: 'Monster Player/Attack1RSpike[/Keyboard/v]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Monster Player
@@ -532,24 +564,23 @@ MonoBehaviour:
   _walkSpeed: 0
   moveInput: {x: 0, y: 0}
   isWalking: 0
+  isRaging: 0
   Stamina: 0
   _staminaGain: 0
   _regenerateDelay: 0
   sprintMultiplier: 0
+  moveSpeed: 4
   _isSprinting: 0
   mouseSensitivity: 0.1
   gamepadSensitivity: 2
   mainCamera: {fileID: 0}
   lookInput: {x: 0, y: 0}
-  groundCheck: {fileID: 604060156}
-  groundDistance: 0.02
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 128
   anim: {fileID: 729055942}
   isGrounded: 1
   isAttacking: 0
   isJumping: 0
+  isAttack1LSpike: 0
+  isAttack1RSpike: 0
 --- !u!136 &729055946
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -630,6 +661,23 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 290884568573959264, guid: 6ec18304030011c47aaa07296ea319e0, type: 3}
   m_PrefabInstance: {fileID: 1306331280}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &729055950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 729055941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdf84347a652d2e40b5213c61b8f1be7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterPlayerAttack
+  isGrounded: 0
+  isAttacking: 0
+  isJumping: 0
+  isAttack1LSpike: 0
+  isAttack1RSpike: 0
 --- !u!1001 &1306331280
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -652,7 +700,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 290884568573959264, guid: 6ec18304030011c47aaa07296ea319e0, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.52667964
+      value: -0.508
       objectReference: {fileID: 0}
     - target: {fileID: 290884568573959264, guid: 6ec18304030011c47aaa07296ea319e0, type: 3}
       propertyPath: m_LocalRotation.w
@@ -723,6 +771,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 290884568573657152, guid: 6ec18304030011c47aaa07296ea319e0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 729055948}
+    - targetCorrespondingSourceObject: {fileID: 290884568573657152, guid: 6ec18304030011c47aaa07296ea319e0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 729055950}
   m_SourcePrefab: {fileID: 100100000, guid: 6ec18304030011c47aaa07296ea319e0, type: 3}
 --- !u!1001 &1454530425
 PrefabInstance:

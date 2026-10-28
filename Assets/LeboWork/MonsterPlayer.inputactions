@@ -47,10 +47,20 @@
                     "priority": 0
                 },
                 {
-                    "name": "Walk forward",
+                    "name": "Attack1RSpike",
                     "type": "Button",
-                    "id": "9ecb3e45-0d6d-4b57-b0d9-855d90b77100",
+                    "id": "24ac4b5f-a960-42e4-9673-68bfe6df2bae",
                     "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                },
+                {
+                    "name": "Walk forward",
+                    "type": "Value",
+                    "id": "9ecb3e45-0d6d-4b57-b0d9-855d90b77100",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true,
@@ -58,8 +68,18 @@
                 },
                 {
                     "name": "Walk backward",
-                    "type": "Button",
+                    "type": "Value",
                     "id": "664a4009-55c7-484c-900f-bbb993a45348",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true,
+                    "priority": 0
+                },
+                {
+                    "name": "Rage",
+                    "type": "Value",
+                    "id": "c54a180e-8432-490a-b2fa-ac00606e789c",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -82,7 +102,7 @@
                 {
                     "name": "up",
                     "id": "09e10e91-14a4-417a-b4a3-97249bf868f9",
-                    "path": "<Keyboard>/w",
+                    "path": "<Keyboard>/upArrow",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -93,7 +113,7 @@
                 {
                     "name": "down",
                     "id": "c075d984-827c-4f95-8279-569b14437a81",
-                    "path": "<Keyboard>/s",
+                    "path": "<Keyboard>/downArrow",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -104,7 +124,7 @@
                 {
                     "name": "left",
                     "id": "8f3c3f58-d2df-4352-ae73-80694cde65d0",
-                    "path": "<Keyboard>/a",
+                    "path": "<Keyboard>/leftArrow",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -115,7 +135,7 @@
                 {
                     "name": "right",
                     "id": "4804e82a-88b0-4eb6-9b31-cca0da8ae0a1",
-                    "path": "<Keyboard>/d",
+                    "path": "<Keyboard>/rightArrow",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -158,25 +178,135 @@
                 },
                 {
                     "name": "",
-                    "id": "8a079762-4909-428c-b786-2927acd6a44a",
-                    "path": "<Keyboard>/upArrow",
+                    "id": "efde7c0f-5332-458f-a957-36bb23a04e1e",
+                    "path": "<Keyboard>/v",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Walk forward",
+                    "action": "Attack1RSpike",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "89b3e9ed-2a58-4476-8fbd-ced711f2cf69",
-                    "path": "<Keyboard>/downArrow",
+                    "id": "5d3f4e63-bd2a-451c-a32a-66a9050ef209",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rage",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "2D Vector",
+                    "id": "c18bec16-66cb-4aec-80a7-db64f8de3170",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Walk backward",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "06cef199-a23a-4e65-a6e2-d45feaf0ee5d",
+                    "path": "",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Walk backward",
                     "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "9750738e-8597-47a6-a02b-5ce34d9d542b",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Walk backward",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "2ab749f2-69a5-4082-818a-54f8915a6c56",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Walk backward",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "daa26d18-3c3b-42e2-827c-e21598318e64",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Walk backward",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "2D Vector",
+                    "id": "15370ed5-7de4-4d29-9fec-2ab013a99f52",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Walk forward",
+                    "isComposite": true,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "1e5bffdc-51a0-422f-8f4e-f20e1331589c",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Walk forward",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "8a812881-fde8-425d-9033-03ba4cd8b87c",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Walk forward",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "5484ab9d-59dc-4d65-ac66-ec77fbb0c6a9",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Walk forward",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "ca4d5af7-1788-4163-93dc-84d03277ccf7",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Walk forward",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 }
             ]
         }

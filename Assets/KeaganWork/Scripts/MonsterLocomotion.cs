@@ -22,6 +22,7 @@ public class MonsterLocomotion : MonoBehaviour
     private Vector3 _currentMovement;
     private Vector2 walkInput;
     public bool isWalking;
+    public bool isRaging;
 
     [Header("Stamina Settings")]
     [Range(0, 100)] public float Stamina;
@@ -36,6 +37,8 @@ public class MonsterLocomotion : MonoBehaviour
 
     [Header("Sprint Settings")]
     [SerializeField] float sprintMultiplier;
+
+    [SerializeField] private int moveSpeed = 4;
 
     private bool _sprintActive => _isSprinting && Stamina > 0;
     private float _currentSpeed => _walkSpeed * (_sprintActive ? sprintMultiplier : 1);
@@ -54,15 +57,19 @@ public class MonsterLocomotion : MonoBehaviour
     [Tooltip("This variable is used for input registration")]
     public Vector2 lookInput;
 
-    [SerializeField] Transform groundCheck;
-    [SerializeField] float groundDistance = 0.02f;
-    [SerializeField] LayerMask groundLayer;
+   // [SerializeField] Transform groundCheck;
+    //[SerializeField] float groundDistance = 0.02f;
+    //[SerializeField] LayerMask groundLayer;
 
     public Animator anim;
-    private int moveSpeed = 6;
+  
     public bool isGrounded;
     public bool isAttacking;
     public bool isJumping;
+    public bool isAttack1LSpike;
+    public bool isAttack1RSpike;
+
+
     private void Awake()
     {
         _playerInput = GetComponent<PlayerInput>();
@@ -103,8 +110,10 @@ public class MonsterLocomotion : MonoBehaviour
         }
 
         anim.SetBool("isGrounded", !isGrounded);
-        anim.SetBool("isJumping", isJumping);
-       
+        //anim.SetBool("isJumping", isJumping);
+
+
+  
 
         Debug.Log(moveInput);
      
@@ -113,13 +122,19 @@ public class MonsterLocomotion : MonoBehaviour
 
     private void FixedUpdate()
     {
+        //Rage();
+        Walk();
         Move();
         Debug.Log(moveInput);
         Debug.Log(jump);
       
         Debug.Log(walkInput);
 
-      
+        if (rb.linearVelocity.y < 0)
+        {
+            rb.AddForce(Vector3.down * 4f, ForceMode.Impulse);
+        }
+
     }
 
     #region Movement
@@ -144,6 +159,9 @@ public class MonsterLocomotion : MonoBehaviour
 
         rb.linearVelocity = new Vector3(moveInput.x * moveSpeed, rb.linearVelocity.y, moveInput.y * moveSpeed);
 
+       
+        //bool isWalking = moveInput.magnitude > 0.1f;
+        //anim.SetBool("isWalking", isWalking);
     }
 
     private void handleMovement()
@@ -171,52 +189,47 @@ public class MonsterLocomotion : MonoBehaviour
         Debug.Log(jump);
     }
 
+    public void OnWalk(InputAction.CallbackContext context)
+    {
+        walkInput = context.ReadValue<Vector2>();
+        Debug.Log(walkInput);
+    }
+
+    public void Walk()
+    {
+        rb.linearVelocity = new Vector2(walkInput.x * _walkSpeed, rb.linearVelocity.y);
+        anim.SetBool("isWalking", Mathf.Abs(moveInput.x) > 0.1f);
+    }
+
+    public void WalkBack()
+    {
+
+        rb.linearVelocity = new Vector2(walkInput.x * _walkSpeed, rb.linearVelocity.y);
+        anim.SetBool("isWalkingBack", Mathf.Abs(moveInput.x) > 0.1f);
+    }
+
     public void Jump()
     {
-            if (!isGrounded)
-            return;
-
-        //downward velocity should be excluded before the jump takes place
+        if (!isGrounded)
+        return;
 
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
 
         rb.AddForce(jumpSpeed * transform.up, ForceMode.Impulse);
         isGrounded = false;
-        isJumping = true;
+        anim.SetBool("isJumping", true);
+        anim.SetBool("isGrounded", false);
 
-        Debug.Log("jump is triggered");
+        Debug.Log(jump);
     }
 
     private void OnCollisionEnter(Collision collision)
-    {
-       if (collision.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = true;
-            isJumping = false;
+    {   isGrounded = true;
+        anim.SetBool("isJumping", false);
+        anim.SetBool("isGrounded", true);
 
-       
-        }
+        Debug.Log("MonsterPlayer landed");
     }
-
-
-
-   /* private void OnDrawGizmos()
-    {
-        if (groundCheck == null) return;
-
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(groundCheck.position, groundDistance);
-    }*/
-
-
-    /*private void OnTriggerEnter(Collider collision)
-    {
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = true;
-        }
-    }*/
-
     #endregion Movement
 
 
@@ -348,10 +361,52 @@ public class MonsterLocomotion : MonoBehaviour
 
     public void Attack1LSpike()
     {
-        anim.SetBool("isAttacking", true);
+        anim.SetBool("isAttack1LSpike", true);
     }
 
+    public void Attack1RSpikeInput(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            Attack1RSpike();
+        }
+        attack = context.ReadValue<Vector2>();
+    }
+
+    public void Attack1RSpike()
+    {
+        anim.SetBool("isAttack1RSpike", true);
+    }
+
+    public void EndAttack1()
+    {
+        anim.SetBool("isAttacking", false);
+    }
+
+    public void EndAttack1LSpike()
+    {
+        anim.SetBool("isAttack1LSpike", false);
+    }
+
+    public void EnedAttack1RSpike()
+    {
+        anim.SetBool("isAttack1RSpike", false);
+    }
     #endregion Attack
 
+    #region Rage
+   /* public void OnRage(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            Rage();
+        }
+    }
 
+    public void Rage()
+    {
+        anim.SetBool("isRaging", true);
+    }*/
+
+    #endregion Rage
 }
