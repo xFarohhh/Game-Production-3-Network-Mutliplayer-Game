@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,6 +10,7 @@ public class MonsterLocomotion : MonoBehaviour
 
     [Header("Player Movement Settings")]
     [SerializeField] float _walkSpeed;
+    float runSpeed;
     //private CharacterController _characterController;
 
     [Tooltip("moveInput logs the input from the chosen device and feeds it to currentMovement to drive the player in the direction of the input")]
@@ -64,10 +66,13 @@ public class MonsterLocomotion : MonoBehaviour
     public Animator anim;
   
     public bool isGrounded;
+    private bool isRunning;
     public bool isAttacking;
     public bool isJumping;
     public bool isAttack1LSpike;
     public bool isAttack1RSpike;
+    public bool isAttacking2;
+    private bool isMoving;
 
 
     private void Awake()
@@ -157,11 +162,14 @@ public class MonsterLocomotion : MonoBehaviour
         //in order to prevent diagonal movement
         //rb.linearVelocity = new Vector3 (moveInput.x * _currentSpeed, rb.linearVelocity.y, moveInput.y * _currentSpeed);
 
+     
+
         rb.linearVelocity = new Vector3(moveInput.x * moveSpeed, rb.linearVelocity.y, moveInput.y * moveSpeed);
+        //rb.linearVelocity = new Vector3(walkInput.x * _walkSpeed, rb.linearVelocity.y);
 
        
         //bool isWalking = moveInput.magnitude > 0.1f;
-        //anim.SetBool("isWalking", isWalking);
+       
     }
 
     private void handleMovement()
@@ -176,6 +184,13 @@ public class MonsterLocomotion : MonoBehaviour
     public void OnSprint(InputAction.CallbackContext context)
     {
         _isSprinting = context.ReadValueAsButton();
+       
+    }
+
+
+    public void Sprint()
+    {
+        //rb.linearVelocity = new Vector3(moveInput.x * moveSpeed, rb.linearVelocity.y, moveInput.y * moveSpeed);
     }
 
     public void JumpInput(InputAction.CallbackContext context)
@@ -191,7 +206,7 @@ public class MonsterLocomotion : MonoBehaviour
 
     public void OnWalk(InputAction.CallbackContext context)
     {
-        walkInput = context.ReadValue<Vector2>();
+        //walkInput = context.ReadValue<Vector2>();
         Debug.Log(walkInput);
     }
 
@@ -354,15 +369,46 @@ public class MonsterLocomotion : MonoBehaviour
         attack = context.ReadValue<Vector2>();
     }
 
+    public void Attack1LSpike()
+    {
+        anim.SetBool("isAttack1LSpike", true);
+    }
+
+    public void EndAttack1LSpikeInput(InputAction.CallbackContext context)
+    {
+        if (!context.performed)
+        {
+            EndAttack1LSpike();
+        }
+
+        attack = context.ReadValue<Vector2>();
+    }
+
+    public void EndAttack1LSpike()
+    {
+        anim.SetBool("isAttack1LSpike", false);
+    }
     public void Attack1()
     {
         anim.SetBool("isAttacking", true);
     }
 
-    public void Attack1LSpike()
+    public void EndAttack1Input(InputAction.CallbackContext context)
     {
-        anim.SetBool("isAttack1LSpike", true);
+        if (!context.performed)
+        {
+            EndAttack1();
+        }
+
+        attack = context.ReadValue<Vector2>();
     }
+
+    public void EndAttack1()
+    {
+        anim.SetBool("isAttacking", false);
+    }
+
+   
 
     public void Attack1RSpikeInput(InputAction.CallbackContext context)
     {
@@ -378,19 +424,47 @@ public class MonsterLocomotion : MonoBehaviour
         anim.SetBool("isAttack1RSpike", true);
     }
 
-    public void EndAttack1()
-    {
-        anim.SetBool("isAttacking", false);
-    }
 
-    public void EndAttack1LSpike()
+    public void EnedAttack1RSpikeInput(InputAction.CallbackContext context)
     {
-        anim.SetBool("isAttack1LSpike", false);
-    }
+        if (!context.performed)
+        {
+            Attack1RSpike();
+        }
 
+        attack = context.ReadValue<Vector2>();
+    }
     public void EnedAttack1RSpike()
     {
         anim.SetBool("isAttack1RSpike", false);
+    }
+
+    public void Attack2Input(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            Attack2();
+        }
+
+        attack = context.ReadValue<Vector2>(); 
+    }
+
+    public void Attack2()
+    {
+        anim.SetBool("isAttack2", true);
+    }
+
+    public void EndAttack2Input(InputAction.CallbackContext context)
+    {
+        if (!context.performed)
+        {
+            Attack2();
+        }
+        attack = context.ReadValue<Vector2>();
+    }
+    public void EndAttack2()
+    {
+        anim.SetBool("isAttack2", false);
     }
     #endregion Attack
 

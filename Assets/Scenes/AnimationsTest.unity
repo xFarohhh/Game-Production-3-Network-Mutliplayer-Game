@@ -443,7 +443,19 @@ MonoBehaviour:
   m_UIInputModule: {fileID: 0}
   m_DeviceLostEvent:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_DeviceRegainedEvent:
     m_PersistentCalls:
       m_Calls: []
@@ -543,6 +555,26 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 24ac4b5f-a960-42e4-9673-68bfe6df2bae
     m_ActionName: 'Monster Player/Attack1RSpike[/Keyboard/v]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 729055945}
+        m_TargetAssemblyTypeName: MonsterLocomotion, Assembly-CSharp
+        m_MethodName: Attack2Input
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: faef3710-14db-417e-994a-25d56e62306f
+    m_ActionName: 'Monster Player/Attack2[/Keyboard/c]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 0a2488b5-86e4-4fb6-835a-a5b7f67379a0
+    m_ActionName: 'Monster Player/Sprint[/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Monster Player
@@ -581,6 +613,7 @@ MonoBehaviour:
   isJumping: 0
   isAttack1LSpike: 0
   isAttack1RSpike: 0
+  isAttacking2: 0
 --- !u!136 &729055946
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -661,23 +694,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 290884568573959264, guid: 6ec18304030011c47aaa07296ea319e0, type: 3}
   m_PrefabInstance: {fileID: 1306331280}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &729055950
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 729055941}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bdf84347a652d2e40b5213c61b8f1be7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MonsterPlayerAttack
-  isGrounded: 0
-  isAttacking: 0
-  isJumping: 0
-  isAttack1LSpike: 0
-  isAttack1RSpike: 0
 --- !u!1001 &1306331280
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -771,9 +787,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 290884568573657152, guid: 6ec18304030011c47aaa07296ea319e0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 729055948}
-    - targetCorrespondingSourceObject: {fileID: 290884568573657152, guid: 6ec18304030011c47aaa07296ea319e0, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 729055950}
   m_SourcePrefab: {fileID: 100100000, guid: 6ec18304030011c47aaa07296ea319e0, type: 3}
 --- !u!1001 &1454530425
 PrefabInstance:
