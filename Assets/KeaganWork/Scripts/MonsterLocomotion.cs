@@ -19,10 +19,11 @@ public class MonsterLocomotion : MonoBehaviour
     private Vector2 jump;
     private Vector2 attack;
 
-    private float jumpSpeed = 9.2f;
-    private float jumpForce = 12.2f;
+    private float jumpSpeed = 10.2f;
+    private float jumpForce = 20.2f;
     private Vector3 _currentMovement;
     private Vector2 walkInput;
+    private Vector2 runInput;
     public bool isWalking;
     public bool isRaging;
 
@@ -93,7 +94,7 @@ public class MonsterLocomotion : MonoBehaviour
 
        
 
-        if (moveInput.magnitude > 0.1)
+        /*if (moveInput.magnitude > 0.1)
         {
             anim.SetBool("isRunning", true);
 
@@ -112,7 +113,16 @@ public class MonsterLocomotion : MonoBehaviour
         else
         {
             anim.SetBool("isWalking", false);
-        }
+        }*/
+
+        bool isWalking = walkInput.magnitude > 0.1f;
+        bool isWalkingBack = walkInput.magnitude < -0.1f;
+        bool isRunning = moveInput.magnitude > 0.1f;
+
+        anim.SetBool("isRunning", isRunning);
+        anim.SetBool("isWalking", isWalking);
+        anim.SetBool("isWalkingBack", isWalkingBack);
+        
 
         anim.SetBool("isGrounded", !isGrounded);
         //anim.SetBool("isJumping", isJumping);
@@ -121,6 +131,9 @@ public class MonsterLocomotion : MonoBehaviour
   
 
         Debug.Log(moveInput);
+        Debug.Log(walkInput);
+      
+
      
        
     }
@@ -129,8 +142,11 @@ public class MonsterLocomotion : MonoBehaviour
     {
         //Rage();
         Walk();
+        WalkBack();
         Move();
+        Sprint();
         Debug.Log(moveInput);
+        Debug.Log(walkInput);
         Debug.Log(jump);
       
         Debug.Log(walkInput);
@@ -162,10 +178,10 @@ public class MonsterLocomotion : MonoBehaviour
         //in order to prevent diagonal movement
         //rb.linearVelocity = new Vector3 (moveInput.x * _currentSpeed, rb.linearVelocity.y, moveInput.y * _currentSpeed);
 
-     
+      
 
         rb.linearVelocity = new Vector3(moveInput.x * moveSpeed, rb.linearVelocity.y, moveInput.y * moveSpeed);
-        //rb.linearVelocity = new Vector3(walkInput.x * _walkSpeed, rb.linearVelocity.y);
+        //rb.linearVelocity = new Vector3(walkInput.x * _walkSpeed, rb.linearVelocity.y, walkInput * _walkSpeed);
 
        
         //bool isWalking = moveInput.magnitude > 0.1f;
@@ -190,7 +206,7 @@ public class MonsterLocomotion : MonoBehaviour
 
     public void Sprint()
     {
-        //rb.linearVelocity = new Vector3(moveInput.x * moveSpeed, rb.linearVelocity.y, moveInput.y * moveSpeed);
+        //rb.linearVelocity = new Vector3(runInput.x * runSpeed, rb.linearVelocity.y, runInput.y * runSpeed);
     }
 
     public void JumpInput(InputAction.CallbackContext context)
@@ -206,21 +222,49 @@ public class MonsterLocomotion : MonoBehaviour
 
     public void OnWalk(InputAction.CallbackContext context)
     {
-        //walkInput = context.ReadValue<Vector2>();
+        walkInput = context.ReadValue<Vector2>();
         Debug.Log(walkInput);
+        anim.SetBool("isWalking", walkInput.magnitude > 0.1f);
     }
 
+    public void OnWalkBack(InputAction.CallbackContext context)
+    {
+        walkInput = context.ReadValue<Vector2>();
+        Debug.Log(walkInput);
+        anim.SetBool("isWalking", walkInput.magnitude > 0.1f);
+    }
     public void Walk()
     {
-        rb.linearVelocity = new Vector2(walkInput.x * _walkSpeed, rb.linearVelocity.y);
-        anim.SetBool("isWalking", Mathf.Abs(moveInput.x) > 0.1f);
+        Vector3 movement = transform.right * walkInput.x + transform.forward * walkInput.y;
+
+        rb.linearVelocity = new Vector3(movement.x * _walkSpeed, rb.linearVelocity.y, movement.z * _walkSpeed);
+        //rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, walkInput.y * _walkSpeed);
+
+        //anim.SetBool("isWalking", Mathf.Abs(walkInput.x) > 0.1f);
+        anim.SetBool("isWalking", walkInput.magnitude > 0.1f);
+
+        //Debug.Log(rb.linearVelocity);
+
+        //Debug.Log("_walkSpeed" + _walkSpeed);
+        //Debug.Log("_walkSpeed = " + _walkSpeed);
+        //Debug.Log("walkInput" + walkInput.x);
+
+        //Debug.Log("Velocity After" + rb.linearVelocity);
+        //Debug.Log("Walk Input X" + walkInput.x);
+        //Debug.Log("Walk Input Y" + walkInput.y);
+
     }
 
     public void WalkBack()
     {
+        Vector3 movement = transform.right * walkInput.x + transform.forward * walkInput.y;
 
-        rb.linearVelocity = new Vector2(walkInput.x * _walkSpeed, rb.linearVelocity.y);
-        anim.SetBool("isWalkingBack", Mathf.Abs(moveInput.x) > 0.1f);
+        rb.linearVelocity = new Vector3(walkInput.x * _walkSpeed, rb.linearVelocity.y, walkInput.y * _walkSpeed);
+
+        //rb.linearVelocity = new Vector3(walkInput.x * _walkSpeed, rb.linearVelocity.y);
+        //anim.SetBool("isWalkingBack", Mathf.Abs(walkInput.x) < -0.1f);
+        anim.SetBool("isWalking", walkInput.magnitude < -0.1f);
+        transform.position += transform.forward * walkInput.y * _walkSpeed * Time.deltaTime;
     }
 
     public void Jump()

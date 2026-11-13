@@ -458,7 +458,19 @@ MonoBehaviour:
         m_CallState: 2
   m_DeviceRegainedEvent:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_ControlsChangedEvent:
     m_PersistentCalls:
       m_Calls: []
@@ -511,14 +523,6 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 74135a6e-f847-4688-b6d7-a30320c72578
     m_ActionName: Monster Player/Attack
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 9ecb3e45-0d6d-4b57-b0d9-855d90b77100
-    m_ActionName: 'Monster Player/Walk forward[/Keyboard/n]'
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 664a4009-55c7-484c-900f-bbb993a45348
-    m_ActionName: 'Monster Player/Walk backward[/Keyboard/m]'
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 729055945}
@@ -575,6 +579,54 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 0a2488b5-86e4-4fb6-835a-a5b7f67379a0
     m_ActionName: 'Monster Player/Sprint[/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 729055945}
+        m_TargetAssemblyTypeName: MonsterLocomotion, Assembly-CSharp
+        m_MethodName: OnSprint
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 0afd591d-7db4-49dc-9b63-b65befeb5d1f
+    m_ActionName: 'Monster Player/Run[/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 729055945}
+        m_TargetAssemblyTypeName: MonsterLocomotion, Assembly-CSharp
+        m_MethodName: OnWalk
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: ecdc80a2-208e-43cc-9a48-d1b16e2666cc
+    m_ActionName: 'Monster Player/Walk[/Keyboard/n,/Keyboard/m]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 729055945}
+        m_TargetAssemblyTypeName: MonsterLocomotion, Assembly-CSharp
+        m_MethodName: OnWalkBack
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 3259301d-0e35-4094-b9be-0df8ecc7dcfe
+    m_ActionName: 'Monster Player/WalkBack[/Keyboard/m]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Monster Player
@@ -593,7 +645,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterLocomotion
   rb: {fileID: 729055947}
-  _walkSpeed: 0
+  _walkSpeed: 4
   moveInput: {x: 0, y: 0}
   isWalking: 0
   isRaging: 0
