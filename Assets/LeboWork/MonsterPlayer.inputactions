@@ -37,9 +37,39 @@
                     "priority": 0
                 },
                 {
+                    "name": "Attack2",
+                    "type": "Button",
+                    "id": "af44943c-f11b-4215-8f90-12b355cb0efa",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                },
+                {
+                    "name": "EndAttack1",
+                    "type": "Button",
+                    "id": "296b8ac4-0415-43d2-ab50-f2933e13632c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                },
+                {
                     "name": "Attack1LSpike",
                     "type": "Button",
                     "id": "d86a2305-a426-45ea-9a8e-66dd189d6a82",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                },
+                {
+                    "name": "EndAttack1LSpike",
+                    "type": "Button",
+                    "id": "3d82f230-88b7-4831-9a4c-b59441770d50",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -57,6 +87,16 @@
                     "priority": 0
                 },
                 {
+                    "name": "EndAttack1RSpike",
+                    "type": "Button",
+                    "id": "e593f980-1654-47e9-8a37-d5a70487191a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                },
+                {
                     "name": "Rage",
                     "type": "Value",
                     "id": "c54a180e-8432-490a-b2fa-ac00606e789c",
@@ -67,7 +107,7 @@
                     "priority": 0
                 },
                 {
-                    "name": "Attack2",
+                    "name": "EndAttack2",
                     "type": "Button",
                     "id": "faef3710-14db-417e-994a-25d56e62306f",
                     "expectedControlType": "",
@@ -142,6 +182,17 @@
                 },
                 {
                     "name": "",
+                    "id": "a0a32c94-354d-4395-8398-b4bbdeb561de",
+                    "path": "<Keyboard>/b",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "EndAttack1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "a259272f-73ea-4713-b812-b455c805ba28",
                     "path": "<Keyboard>/c",
                     "interactions": "",
@@ -153,12 +204,34 @@
                 },
                 {
                     "name": "",
+                    "id": "0f224e17-7174-489b-976f-b560bddd9b1c",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "EndAttack1LSpike",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "efde7c0f-5332-458f-a957-36bb23a04e1e",
                     "path": "<Keyboard>/v",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Attack1RSpike",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d9d412ad-748a-4aa9-ad98-790bb4306614",
+                    "path": "<Keyboard>/v",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "EndAttack1RSpike",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -176,6 +249,17 @@
                 {
                     "name": "",
                     "id": "abb9def8-63db-4c30-a30c-1704ee8c986a",
+                    "path": "<Keyboard>/j",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "EndAttack2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f7c4b34a-324e-44d3-9ca7-726bd97e1389",
                     "path": "<Keyboard>/j",
                     "interactions": "",
                     "processors": "",

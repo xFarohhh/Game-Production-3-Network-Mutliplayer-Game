@@ -156,6 +156,9 @@ public class MonsterLocomotion : MonoBehaviour
             rb.AddForce(Vector3.down * 4f, ForceMode.Impulse);
         }
 
+        bool isRunning = moveInput.magnitude > 0.1f;
+
+        anim.SetBool("isRunning", isRunning);
     }
 
     #region Movement
@@ -231,7 +234,7 @@ public class MonsterLocomotion : MonoBehaviour
     {
         walkInput = context.ReadValue<Vector2>();
         Debug.Log(walkInput);
-        anim.SetBool("isWalking", walkInput.magnitude > 0.1f);
+        anim.SetBool("isWalking", walkInput.magnitude < 0.1f);
     }
     public void Walk()
     {
@@ -263,7 +266,7 @@ public class MonsterLocomotion : MonoBehaviour
 
         //rb.linearVelocity = new Vector3(walkInput.x * _walkSpeed, rb.linearVelocity.y);
         //anim.SetBool("isWalkingBack", Mathf.Abs(walkInput.x) < -0.1f);
-        anim.SetBool("isWalking", walkInput.magnitude < -0.1f);
+        anim.SetBool("isWalking", walkInput.magnitude < 0.1f);
         transform.position += transform.forward * walkInput.y * _walkSpeed * Time.deltaTime;
     }
 
@@ -295,7 +298,7 @@ public class MonsterLocomotion : MonoBehaviour
     #region Stamina
     private void takeStamina(float amount)
     {
-       /* Stamina -= amount;
+        Stamina -= amount;
         // ensures that Stamina can never be negative.
         if (Stamina <= 0)
         {
@@ -308,13 +311,13 @@ public class MonsterLocomotion : MonoBehaviour
         if (Stamina <= 0)
         {
             Stamina = 0;
-        }*/
+        }
     }
     private void regenerateStamina()
     {
         float regenerateDefaultTime = _regenerateDelay;
         // only allows for the player to regnerate stamina if the timer has ran out.
-        /*if (Stamina < 0)
+        if (Stamina < 0)
         {
             _regenerateDelay -= 1 * Time.deltaTime;
         }
@@ -326,7 +329,7 @@ public class MonsterLocomotion : MonoBehaviour
         {
             Stamina = _maxStamina;
             _regenerateDelay = regenerateDefaultTime;
-        }*/
+        }
     }
     #endregion Stamina
 
@@ -420,7 +423,7 @@ public class MonsterLocomotion : MonoBehaviour
 
     public void EndAttack1LSpikeInput(InputAction.CallbackContext context)
     {
-        if (!context.performed)
+        if (context.canceled)
         {
             EndAttack1LSpike();
         }
@@ -439,7 +442,7 @@ public class MonsterLocomotion : MonoBehaviour
 
     public void EndAttack1Input(InputAction.CallbackContext context)
     {
-        if (!context.performed)
+        if (context.canceled)
         {
             EndAttack1();
         }
@@ -469,16 +472,16 @@ public class MonsterLocomotion : MonoBehaviour
     }
 
 
-    public void EnedAttack1RSpikeInput(InputAction.CallbackContext context)
+    public void EndAttack1RSpikeInput(InputAction.CallbackContext context)
     {
-        if (!context.performed)
+        if (context.canceled)
         {
-            Attack1RSpike();
+            EndAttack1RSpike();
         }
 
         attack = context.ReadValue<Vector2>();
     }
-    public void EnedAttack1RSpike()
+    public void EndAttack1RSpike()
     {
         anim.SetBool("isAttack1RSpike", false);
     }
@@ -500,9 +503,9 @@ public class MonsterLocomotion : MonoBehaviour
 
     public void EndAttack2Input(InputAction.CallbackContext context)
     {
-        if (!context.performed)
+        if (context.canceled)
         {
-            Attack2();
+            EndAttack2();
         }
         attack = context.ReadValue<Vector2>();
     }
@@ -513,7 +516,7 @@ public class MonsterLocomotion : MonoBehaviour
     #endregion Attack
 
     #region Rage
-   /* public void OnRage(InputAction.CallbackContext context)
+    public void OnRage(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
@@ -524,7 +527,7 @@ public class MonsterLocomotion : MonoBehaviour
     public void Rage()
     {
         anim.SetBool("isRaging", true);
-    }*/
+    }
 
     #endregion Rage
 }

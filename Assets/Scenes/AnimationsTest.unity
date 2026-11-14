@@ -443,19 +443,7 @@ MonoBehaviour:
   m_UIInputModule: {fileID: 0}
   m_DeviceLostEvent:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   m_DeviceRegainedEvent:
     m_PersistentCalls:
       m_Calls:
@@ -563,7 +551,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 729055945}
         m_TargetAssemblyTypeName: MonsterLocomotion, Assembly-CSharp
-        m_MethodName: Attack2Input
+        m_MethodName: EndAttack2Input
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -627,6 +615,70 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 3259301d-0e35-4094-b9be-0df8ecc7dcfe
     m_ActionName: 'Monster Player/WalkBack[/Keyboard/m]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 729055945}
+        m_TargetAssemblyTypeName: MonsterLocomotion, Assembly-CSharp
+        m_MethodName: EndAttack1Input
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 296b8ac4-0415-43d2-ab50-f2933e13632c
+    m_ActionName: 'Monster Player/EndAttack1[/Keyboard/b]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 729055945}
+        m_TargetAssemblyTypeName: MonsterLocomotion, Assembly-CSharp
+        m_MethodName: EndAttack1LSpikeInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 3d82f230-88b7-4831-9a4c-b59441770d50
+    m_ActionName: 'Monster Player/EndAttack1LSpike[/Keyboard/c]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 729055945}
+        m_TargetAssemblyTypeName: MonsterLocomotion, Assembly-CSharp
+        m_MethodName: EndAttack1RSpikeInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: e593f980-1654-47e9-8a37-d5a70487191a
+    m_ActionName: 'Monster Player/EndAttack1RSpike[/Keyboard/v]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 729055945}
+        m_TargetAssemblyTypeName: MonsterLocomotion, Assembly-CSharp
+        m_MethodName: Attack2Input
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: af44943c-f11b-4215-8f90-12b355cb0efa
+    m_ActionName: 'Monster Player/Attack2[/Keyboard/j]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Monster Player
