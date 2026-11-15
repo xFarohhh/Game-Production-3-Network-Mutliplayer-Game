@@ -97,16 +97,6 @@
                     "priority": 0
                 },
                 {
-                    "name": "Rage",
-                    "type": "Value",
-                    "id": "c54a180e-8432-490a-b2fa-ac00606e789c",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true,
-                    "priority": 0
-                },
-                {
                     "name": "EndAttack2",
                     "type": "Button",
                     "id": "faef3710-14db-417e-994a-25d56e62306f",
@@ -232,17 +222,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "EndAttack1RSpike",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "5d3f4e63-bd2a-451c-a32a-66a9050ef209",
-                    "path": "<Keyboard>/e",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Rage",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
