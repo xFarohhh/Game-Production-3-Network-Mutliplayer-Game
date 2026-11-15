@@ -1327,6 +1327,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 314561841}
   m_CullTransparentMesh: 1
+--- !u!1 &331253067 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8702665172739203609, guid: 9d5b07186a9a2c442876804f45962317, type: 3}
+  m_PrefabInstance: {fileID: 1969997665}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &332307327
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6975,7 +6980,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4005962153271061174, guid: 9d5b07186a9a2c442876804f45962317, type: 3}
       propertyPath: m_InScenePlacedDisabledByDefault
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4005962153271061174, guid: 9d5b07186a9a2c442876804f45962317, type: 3}
       propertyPath: InScenePlacedSourceGlobalObjectIdHash
@@ -6988,6 +6993,34 @@ PrefabInstance:
     - target: {fileID: 8702665172739203609, guid: 9d5b07186a9a2c442876804f45962317, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8854368903599927342, guid: 9d5b07186a9a2c442876804f45962317, type: 3}
+      propertyPath: m_ActionEvents.Array.size
+      value: 17
+      objectReference: {fileID: 0}
+    - target: {fileID: 8854368903599927342, guid: 9d5b07186a9a2c442876804f45962317, type: 3}
+      propertyPath: m_ActionEvents.Array.data[16].m_ActionId
+      value: f015799d-13fc-42e4-b527-74238142a0f6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8854368903599927342, guid: 9d5b07186a9a2c442876804f45962317, type: 3}
+      propertyPath: m_ActionEvents.Array.data[16].m_ActionName
+      value: 'Player/Hide[/Keyboard/h]'
+      objectReference: {fileID: 0}
+    - target: {fileID: 8854368903599927342, guid: 9d5b07186a9a2c442876804f45962317, type: 3}
+      propertyPath: m_ActionEvents.Array.data[16].m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8854368903599927342, guid: 9d5b07186a9a2c442876804f45962317, type: 3}
+      propertyPath: m_ActionEvents.Array.data[16].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8854368903599927342, guid: 9d5b07186a9a2c442876804f45962317, type: 3}
+      propertyPath: m_ActionEvents.Array.data[16].m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 331253067}
+    - target: {fileID: 8854368903599927342, guid: 9d5b07186a9a2c442876804f45962317, type: 3}
+      propertyPath: m_ActionEvents.Array.data[16].m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
