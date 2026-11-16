@@ -50,6 +50,9 @@ public static class LobbyGameBootstrap   // added
             return;
         }
 
+        // changed: spawn each player with the prefab of their role (Monster Prefab / PlayerPrefab) - see RoleSpawnApproval
+        RoleSpawnApproval.Prepare(manager);
+
         try
         {
             if (LobbySession.isHost)
