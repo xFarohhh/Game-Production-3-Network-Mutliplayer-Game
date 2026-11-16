@@ -28,6 +28,7 @@ public class LobbyCreateUI : MonoBehaviour {
 
     private void Awake() {
         Instance = this;
+        enabled = false; return;   // changed: old tutorial screen with unassigned Inspector fields (NullReferenceException here); the new LobbyMenuUI replaces it
 
         createButton.onClick.AddListener(() => {
             LobbyManager.Instance.CreateLobby(
@@ -69,11 +70,11 @@ public class LobbyCreateUI : MonoBehaviour {
         gameModeButton.onClick.AddListener(() => {
             switch (gameMode) {
                 default:
-                case LobbyManager.GameMode.CaptureTheFlag:
-                    gameMode = LobbyManager.GameMode.Conquest;
+                case LobbyManager.GameMode.LastManStanding:
+                    gameMode = LobbyManager.GameMode.Escape;
                     break;
-                case LobbyManager.GameMode.Conquest:
-                    gameMode = LobbyManager.GameMode.CaptureTheFlag;
+                case LobbyManager.GameMode.Escape:
+                    gameMode = LobbyManager.GameMode.LastManStanding;
                     break;
             }
             UpdateText();
@@ -99,7 +100,7 @@ public class LobbyCreateUI : MonoBehaviour {
         lobbyName = "MyLobby";
         isPrivate = false;
         maxPlayers = 4;
-        gameMode = LobbyManager.GameMode.CaptureTheFlag;
+        gameMode = LobbyManager.GameMode.LastManStanding;
 
         UpdateText();
     }

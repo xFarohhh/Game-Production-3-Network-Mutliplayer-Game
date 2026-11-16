@@ -442,7 +442,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 593480159
+  GlobalObjectIdHash: 2739738744
   InScenePlacedSourceGlobalObjectIdHash: 0
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
@@ -484,6 +484,18 @@ MonoBehaviour:
   gamepadSensitivity: 2
   mainCamera: {fileID: 8371438315158002905}
   lookInput: {x: 0, y: 0}
+  currentBatteryLife: 0
+  maxBatteryLife: 100
+  batteryRegenSpeed: 2.5
+  batteryDrainSpeed: 4
+  batterSlider: {fileID: 0}
+  batteryLifeText: {fileID: 0}
+  light: {fileID: 0}
+  isFlashLightActive: 0
+  respawnButton: {fileID: 0}
+  isPlayerDead: 0
+  PlayerHumanMesh: {fileID: 0}
+  playerDustMesh: {fileID: 0}
 --- !u!114 &-4008346587584694975
 MonoBehaviour:
   m_ObjectHideFlags: 0

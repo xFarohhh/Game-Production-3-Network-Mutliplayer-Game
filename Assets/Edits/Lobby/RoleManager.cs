@@ -1,0 +1,522 @@
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
+using Unity.Netcode;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.Android;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public class RoleManager : MonoBehaviour
+{
+    public static RoleManager instance;
+
+    // changed: all four messages shared the name "_Role", so each registration overwrote the previous handler and the role table / events / result were never handled separately
+    private const string MsgRole = "LB_Role";
+    private const string MsgTable = "LB_Table";
+    private const string MsgEvent = "LB_Event";
+    private const string MsgResult = "LB_Result";
+    private const byte EventEliminated = 0; 
+    private const byte EventEscapes = 1;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+
+    private static void RegisterRole()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        SceneManager.sceneLoaded += OnSceneLoaded;
+
+        OnSceneLoaded(SceneManager.GetActiveScene(), LoadSceneMode.Single);
+    }
+    /// <summary>
+    /// Automatically creates the RoleManager in the scene
+    /// </summary>
+    /// <param name="scene"></param>
+    /// <param name="loadSceneMode"></param>
+    private static void OnSceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
+    {
+        if (!LobbySession.isActive || scene.name == "MainMenu") return;
+        if (FindAnyObjectByType<RoleManager>() != null) return;
+        new GameObject("Role Manager").AddComponent<RoleManager>();
+    }
+    private readonly Dictionary<ulong, LobbyManager.PlayerRole> roles = new Dictionary<ulong, LobbyManager.PlayerRole>();
+    private readonly HashSet<ulong> eliminatedEvents = new HashSet<ulong>();
+    private readonly HashSet<ulong> escapedEvents = new HashSet<ulong>();
+    private LobbyManager.GameMode mode;
+    private bool handlersRegistered, roleSent, finished, started, deathHooked, localDone;
+    private float applyTimer, serverTimer, hudTimer;
+    private FlashlightHandler flashlightHandler;
+
+    private TMP_Text infoText, bannerText;
+
+    private void Awake()
+    {
+        instance = this;
+        mode = LobbySession.gameMode;
+    }
+
+    private void Start()
+    {
+        BuildHud();
+        if (mode == LobbyManager.GameMode.Escape) AddEscapeZones();
+    }
+    private void OnDestroy()
+    {
+        if(instance == this) instance = null;
+        if(flashlightHandler != null)
+        {
+            flashlightHandler.isPlayerDead -= OnLocalPlayerDied;
+        }
+        NetworkManager networkManager = NetworkManager.Singleton;
+        if (networkManager != null && handlersRegistered && networkManager.CustomMessagingManager != null)
+        {
+            networkManager.CustomMessagingManager.UnregisterNamedMessageHandler(MsgRole);
+            networkManager.CustomMessagingManager.UnregisterNamedMessageHandler(MsgTable);
+            networkManager.CustomMessagingManager.UnregisterNamedMessageHandler(MsgEvent);
+            networkManager.CustomMessagingManager.UnregisterNamedMessageHandler(MsgResult);
+            networkManager.OnClientDisconnectCallback -= OnClientDisconnected;
+        }
+    }
+
+    private void Update()
+    {
+        NetworkManager nm  = NetworkManager.Singleton;
+
+        if (!handlersRegistered)
+        {
+            if (nm.IsListening && nm.CustomMessagingManager != null) RegisterHandlers(nm);
+            return;
+        }
+        if (!roleSent && (nm.IsServer || nm.IsConnectedClient)) SendMyRole(nm);
+
+        if (!deathHooked) TryDeathHook();
+
+        applyTimer -= Time.unscaledDeltaTime;
+        if(applyTimer <= 0)
+        {
+            applyTimer = 0.25f;
+            ApplyRolesToPlayers();
+        }
+
+        if(nm.IsServer && !finished)
+        {
+            serverTimer -= Time.unscaledDeltaTime;
+            if(serverTimer <= 0)
+            {
+                serverTimer = 0.25f;
+                ServerScanStates();
+                ServerEvaluate(nm); 
+            }
+        }
+
+        hudTimer -= Time.unscaledDeltaTime;
+        if(hudTimer <= 0)
+        {
+            hudTimer = 0.5f;
+            RefreshInfo();
+        }
+    }
+
+    private void RegisterHandlers(NetworkManager nm)
+    {
+        CustomMessagingManager messagingManager = nm.CustomMessagingManager;
+        messagingManager.RegisterNamedMessageHandler(MsgRole, OnRoleMessage);
+        messagingManager.RegisterNamedMessageHandler(MsgTable, OnTableMessage);
+        messagingManager.RegisterNamedMessageHandler(MsgEvent, OnEventMessage);
+        messagingManager.RegisterNamedMessageHandler(MsgResult, OnResultMessage);
+        if (nm.IsServer)
+        {
+            nm.OnClientDisconnectCallback += OnClientDisconnected;
+            handlersRegistered = true;
+        }
+    }
+    private void SendMyRole(NetworkManager nm)
+    {
+        roleSent = true;
+        if (nm.IsServer)
+        {
+            roles[nm.LocalClientId] = LobbySession.role;
+            mode = LobbySession.gameMode;
+            BroadcastTable(nm);
+        }
+        else
+        {
+            using(FastBufferWriter writer = new FastBufferWriter(8, Unity.Collections.Allocator.Temp))
+            {
+                writer.WriteValueSafe((byte)LobbySession.role);
+                nm.CustomMessagingManager.SendNamedMessage(MsgRole, NetworkManager.ServerClientId, writer);
+            }
+        }
+    }
+
+    private void BroadcastTable(NetworkManager nm)
+    {
+        using(FastBufferWriter writer = new FastBufferWriter(16 + roles.Count * 12, Unity.Collections.Allocator.Temp))
+        {
+            writer.WriteValueSafe((byte)mode);
+            writer.WriteValueSafe(roles.Count);
+            foreach(KeyValuePair<ulong, LobbyManager.PlayerRole> keyValues in roles)
+            {
+                writer.WriteValueSafe(keyValues.Key);
+                writer.WriteValueSafe((byte)keyValues.Value);
+            }
+            nm.CustomMessagingManager.SendNamedMessageToAll(MsgTable, writer);
+        }
+    }
+    private void OnRoleMessage(ulong senderId, FastBufferReader reader)
+    {
+        NetworkManager nm = NetworkManager.Singleton;
+        if (nm == null || !nm.IsServer) return;
+        reader.ReadValueSafe(out byte role);
+        roles[senderId] = (LobbyManager.PlayerRole)role;
+        BroadcastTable(nm);
+    }
+
+    private void OnTableMessage(ulong senderId, FastBufferReader reader)
+    {
+        NetworkManager nm = NetworkManager.Singleton;
+        if (nm == null || !nm.IsServer) return;
+        reader.ReadValueSafe(out byte modeByte);
+        reader.ReadValueSafe(out int count);
+        roles.Clear();
+        for(int i = 0; i < count; i++)
+        {
+            reader.ReadValueSafe(out byte id);
+            reader.ReadValueSafe(out int role);
+            roles[id] = (LobbyManager.PlayerRole)role;
+        }
+        mode = (LobbyManager.GameMode)modeByte;
+    }
+
+    private void OnEventMessage(ulong senderId, FastBufferReader reader)
+    {
+        NetworkManager nm = NetworkManager.Singleton;
+        if(nm == null || !nm.IsServer) { return; }
+        reader.ReadValueSafe(out byte type);
+        ServerHandleEvent(senderId, type);
+    }
+
+    private void OnResultMessage(ulong senderId, FastBufferReader reader)
+    {
+        reader.ReadValueSafe(out byte winner);
+        reader.ReadValueSafe(out string text);
+        ShowResult(winner, text);
+    }
+    private void OnClientDisconnected(ulong clientId)
+    {
+        NetworkManager nm = NetworkManager.Singleton;
+        if( nm == null || !nm.IsServer) return;
+        roles.Remove(clientId);
+        BroadcastTable(nm);
+    }
+
+    private void SendEvent(byte type)
+    {
+        NetworkManager nm = NetworkManager.Singleton;
+        if (nm == null || !handlersRegistered) return;
+
+        if (nm.IsServer)
+        {
+            ServerHandleEvent(nm.LocalClientId, type);
+        }
+        else
+        {
+            using(FastBufferWriter writer = new FastBufferWriter(8, Unity.Collections.Allocator.Temp))
+            {
+                writer.WriteValueSafe(type);
+                nm.CustomMessagingManager.SendNamedMessage(MsgEvent, NetworkManager.ServerClientId, writer);
+            }
+        }
+    }
+    private void TryDeathHook()
+    {
+        foreach(FlashlightHandler flashLight in FindObjectsByType<FlashlightHandler>(FindObjectsSortMode.None))
+        {
+            if(flashLight.IsSpawned && flashLight.IsOwner)
+            {
+                flashLight.isPlayerDead += OnLocalPlayerDied;
+                flashlightHandler = flashLight;
+                deathHooked = true;
+                return;
+            }
+        }
+    }
+
+    private void OnLocalPlayerDied()
+    {
+        if (finished) return;
+        SendEvent(EventEliminated);
+    }
+    public void ReportEscaped()
+    {
+        if (finished || localDone) return;
+        if (mode != LobbyManager.GameMode.Escape) return;
+        if (LobbySession.role != LobbyManager.PlayerRole.Human) return;
+        localDone = true;
+        SendEvent(EventEscapes);
+        if(bannerText != null)
+        {
+            bannerText.color = new Color(0.55f, 0.85f, 0.6f);
+            bannerText.text = "You have Escaped";
+        }
+    }
+    private void ServerHandleEvent(ulong clientId, byte type)
+    {
+        if(finished) return;
+        if (type == EventEliminated) eliminatedEvents.Add(clientId);
+        else if(type == EventEscapes) escapedEvents.Add(clientId);
+    }
+
+    private void ServerScanStates()
+    {
+        foreach (PlayerStateManager stateManager in FindObjectsByType<PlayerStateManager>(FindObjectsSortMode.None))
+        {
+            if (stateManager.IsSpawned) continue;
+            if (stateManager.CurrentState == PlayerState.Captured) eliminatedEvents.Add(stateManager.OwnerClientId);
+            else if(stateManager.CurrentState == PlayerState.Escaped) escapedEvents.Add(stateManager.OwnerClientId);
+        }
+    }
+
+    private void ServerEvaluate(NetworkManager nm)
+    {
+        if(roles.Count == 0 || roles.Count < nm.ConnectedClientsIds.Count) return;
+
+        int totalHumans = 0, humanInPlay = 0, humansEscaped = 0, totalMonsters = 0, monstersAlive = 0;
+        foreach(KeyValuePair<ulong, LobbyManager.PlayerRole> keyValues in roles)
+        {
+            bool isEliminated = eliminatedEvents.Contains(keyValues.Key);
+            if(keyValues.Value == LobbyManager.PlayerRole.Human)
+            {
+                totalHumans++;
+                bool hasEscaped = mode == LobbyManager.GameMode.Escape && escapedEvents.Contains(keyValues.Key);
+                if(hasEscaped)
+                {
+                    humansEscaped++;
+                    if (!isEliminated) monstersAlive++;
+                }
+            }
+
+            if (!started)
+            {
+                if (totalHumans > 0 && totalMonsters > 0)
+                {
+                    started = true;
+                }
+                else return;
+            }
+
+            if(monstersAlive == 0)
+            {
+                Finish(0, "The monster has been killed");
+
+            }
+            else if(humanInPlay == 0)
+            {
+                if(mode == LobbyManager.GameMode.Escape && humansEscaped > 0)
+                {
+                    Finish(0, humansEscaped + (humansEscaped == 1 ? "human" : "Humans" + "have escaped")); 
+                }
+                else
+                {
+                    Finish(1, mode == LobbyManager.GameMode.Escape ? "No Humans have escaped" : "Every Human has been Killed");
+                }
+            }
+        }
+    }
+
+    private void Finish(byte winner, string message)
+    {
+        finished = true;
+        NetworkManager nm = NetworkManager.Singleton;
+        using(FastBufferWriter writer = new FastBufferWriter(32 + message.Length * 2, Unity.Collections.Allocator.Temp))
+        {
+            writer.WriteValueSafe(winner);
+            writer.WriteValueSafe(message);
+            nm.CustomMessagingManager.SendNamedMessageToAll(MsgResult, writer);
+        }
+        ShowResult(winner, message);
+    }
+
+    private void ApplyRolesToPlayers()
+    {
+        foreach(PlayerLocomotion player in FindObjectsByType<PlayerLocomotion>(FindObjectsSortMode.None))
+        {
+            if(!player.IsSpawned) continue;
+            if(!roles.TryGetValue(player.OwnerClientId, out LobbyManager.PlayerRole role)) continue;
+
+            PlayerRoleTag playerTag = player.GetComponent<PlayerRoleTag>();
+            if(playerTag == null)
+            {
+                playerTag = player.gameObject.AddComponent<PlayerRoleTag>();
+            }
+            if (playerTag.Applied && playerTag.Role == role) continue;
+
+            playerTag.Apply(role, player.IsOwner);
+        }
+    }
+
+    private void AddEscapeZones()
+    {
+        foreach(Collider c in FindObjectsByType<Collider>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (c.name.ToLowerInvariant().Contains("escape") && c.GetComponent<EscapeZone>() == null)
+            {
+                c.gameObject.AddComponent<EscapeZone>();
+            }
+        }
+    }
+
+    private void BuildHud()
+    {
+        GameObject hudGameObject = new GameObject("RoleHud", typeof(Canvas), typeof(CanvasScaler));
+        hudGameObject.transform.SetParent(transform, false);
+        Canvas canvas = hudGameObject.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 30;
+        CanvasScaler scaler = hudGameObject.GetComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920, 1080);
+
+        infoText = MakeText(hudGameObject.transform, 28, TextAlignmentOptions.TopLeft, new Vector2(0f, 1f), new Vector2(30, -25), new Vector2(900, 160));
+        bannerText = MakeText(hudGameObject.transform, 64, TextAlignmentOptions.Center, new Vector2(0.5f, 0.75f), Vector3.zero, new Vector2(1500, 200));
+        bannerText.text = "";
+        RefreshInfo();
+    }
+
+    public static TMP_Text MakeText(Transform parent, float size, TextAlignmentOptions options, Vector2 anchor, Vector2 pos, Vector2 dim)
+    {
+        GameObject go = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+        go.transform.SetParent(parent, false);
+        RectTransform rect = go.GetComponent<RectTransform>();
+        rect.anchorMin = rect.anchorMax = anchor;
+        rect.pivot = pos;
+        rect.sizeDelta = dim;
+        TextMeshProUGUI text = go.GetComponent<TextMeshProUGUI>();
+        text.fontSize = size;
+        text.alignment = options;
+        text.color = Color.white;
+        text.raycastTarget = false;
+        text.richText = true;
+        return text;
+    }
+    private void RefreshInfo()
+    {
+        if (infoText == null) return;
+        bool isMonster = LobbySession.role == LobbyManager.PlayerRole.Monster;
+        string roleColour = isMonster ? "#F25A5A" : "#BCD9FF";
+        string objective;
+        if(mode == LobbyManager.GameMode.Escape)
+        {
+            objective = isMonster ? "Stop all the humans from escaping" : "Find the exit and escape the monster";
+        }
+        else
+        {
+            objective = isMonster ? "Eliminate Every Human" : "Survive ... Be the last one standing";
+        }
+        infoText.text = ($"Mode: <b> {LobbyManager.setGameModeDisplay(mode)}. <b> \n" +
+            $"You are: <color = {roleColour}> <b> {LobbySession.role} \n" +
+            $"Objective: <b> {objective}");
+    }
+
+    private void ShowResult(byte winner, string text)
+    {
+        finished = true;
+        if (bannerText == null) return;
+        bool haveHumansWon = winner == 0;
+        bool isGameWon = haveHumansWon == (LobbySession.role == LobbyManager.PlayerRole.Human);
+        bannerText.color = isGameWon ? new Color(0.55f, 0.95f, 0.6f) : new Color(1f, 0.45f, 0.45f);
+        bannerText.text = (haveHumansWon ? "Humans have won the game" : "The monster has won the game \n" +
+            $"<size=36> {text} \n" +
+            (isGameWon ? "You have won" : "You have lost") + "Press escape to leave the game return to the menu");
+    }
+}
+
+[RequireComponent(typeof(Collider))]
+public class EscapeZone : MonoBehaviour
+{
+    private void Awake()
+    {
+        GetComponent<Collider>().isTrigger = true;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        PlayerLocomotion player = other.GetComponentInParent<PlayerLocomotion>();
+        if (player == null || !player.IsSpawned) return;
+
+        if (RoleManager.instance != null) RoleManager.instance.ReportEscaped();
+    }
+}
+
+public class PlayerRoleTag : MonoBehaviour
+{
+    public LobbyManager.PlayerRole Role {  get; private set; }
+    public bool Applied { get; private set; }
+    private GameObject monsterModel;
+    private static bool warnedMissingModel;
+
+    public void Apply(LobbyManager.PlayerRole role, bool isOwner)
+    {
+        Role = role;
+        Applied = true;
+        MonsterLook monsterLook = GetComponent<MonsterLook>();
+        if(monsterLook != null)
+        {
+            monsterLook.enabled = role == LobbyManager.PlayerRole.Monster;
+        }
+        Transform humanMesh = FindDeep(transform, "PlayerMesh");
+
+        if(role == LobbyManager.PlayerRole.Monster)
+        {
+            if(humanMesh != null)
+            {
+                humanMesh.gameObject.SetActive(false);
+            }
+        }
+        else if(monsterModel != null)
+        {
+            Destroy(monsterLook);
+        }
+    }
+
+    private void AttachMonserModel(bool isOwner)
+    {
+        if (monsterModel != null) return;
+        GameObject prefab = Resources.Load<GameObject>("MonsterModel");
+        if(prefab == null)
+        {
+            if (!warnedMissingModel) Debug.LogWarning("PlayerTagRole: Resources/MonsterModel.prefab has not been found.");
+            warnedMissingModel = true;
+            return;
+        }
+
+        monsterModel = Instantiate(prefab, transform);
+        monsterModel.name = "MonsterModel";
+        monsterModel.transform.localPosition = Vector3.zero;
+        monsterModel.transform.localRotation = Quaternion.identity;
+
+        foreach(Collider c in monsterModel.GetComponentsInChildren<Collider>(true))
+        {
+            Destroy(c);
+        }
+
+        if (isOwner)
+        {
+            foreach(Renderer renderer in monsterModel.GetComponentsInChildren<Renderer>(true))
+            {
+                renderer.enabled = false;
+            }
+        }
+    }
+    private static Transform FindDeep(Transform root, string childName)
+    {
+        foreach(Transform transform in root.GetComponentsInChildren<Transform>(true))
+        {
+            if(transform.name == childName) return transform;
+        }
+        return null;
+    }
+
+}
+
