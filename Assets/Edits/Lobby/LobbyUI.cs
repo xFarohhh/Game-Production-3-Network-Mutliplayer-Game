@@ -26,6 +26,7 @@ public class LobbyUI : MonoBehaviour {
 
     private void Awake() {
         Instance = this;
+        enabled = false; return;   // changed: old tutorial screen with unassigned Inspector fields; the new LobbyMenuUI replaces it
 
         playerSingleTemplate.gameObject.SetActive(false);
 
@@ -44,7 +45,7 @@ public class LobbyUI : MonoBehaviour {
         });
 
         changeGameModeButton.onClick.AddListener(() => {
-            LobbyManager.Instance.ChangeGameMode();
+            LobbyManager.Instance.ChangeGamemode();
         });
     }
 

@@ -3187,14 +3187,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2251571971
+  GlobalObjectIdHash: 2279356996
   InScenePlacedSourceGlobalObjectIdHash: 1325531367
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
-  m_InScenePlaced: 1
+  m_InScenePlaced: 0
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
@@ -3237,6 +3237,10 @@ MonoBehaviour:
   batteryLifeText: {fileID: 0}
   light: {fileID: 0}
   isFlashLightActive: 0
+  respawnButton: {fileID: 0}
+  isPlayerDead: 0
+  PlayerHumanMesh: {fileID: 0}
+  playerDustMesh: {fileID: 0}
 --- !u!114 &5764634082082749515
 MonoBehaviour:
   m_ObjectHideFlags: 0
