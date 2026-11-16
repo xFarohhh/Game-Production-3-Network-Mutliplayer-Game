@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 using Unity.Netcode;
 using UnityEngine.UI;
 using TMPro;
-using System.Collections.Generic;      // ADDED: list of every spawned player (used by the flashlight kill scan)
+using System.Collections.Generic;
 using Unity.Netcode.Components;
 
 public class PlayerLocomotion : NetworkBehaviour
@@ -66,6 +66,13 @@ public class PlayerLocomotion : NetworkBehaviour
     [SerializeField] Light light;
     [SerializeField] bool isFlashLightActive;
 
+    [Header("Hide Properties")]
+    public float interactDistance = 2f;
+    private HideableObject currentHideable;
+    private bool isHidden = false;
+    private Vector3 originalPosition;
+    private Quaternion originalRotation;
+
     [Header("Animator")]
     private Animator anim;
 
@@ -84,9 +91,7 @@ public class PlayerLocomotion : NetworkBehaviour
     {
         _playerInput = GetComponent<PlayerInput>();
         _characterController = GetComponent<CharacterController>();
-   
     }
-
 
     private void Update()
     {
@@ -98,11 +103,12 @@ public class PlayerLocomotion : NetworkBehaviour
         handleMovement();
         regenerateStamina();
         handleRotation();
+
+        if (!isHidden) CheckForHideableObject(); 
     }
 
     public override void OnNetworkSpawn()
     {
-        
     }
 
     #region Movement
@@ -113,7 +119,7 @@ public class PlayerLocomotion : NetworkBehaviour
 
     private Vector3 calculateWorldDirecion()
     {
-        Vector3 inputDirection = new Vector3(moveInput.x,0,moveInput.y);
+        Vector3 inputDirection = new Vector3(moveInput.x, 0, moveInput.y);
         Vector3 worldDirection = transform.TransformDirection(inputDirection);
         return worldDirection.normalized;
     }
@@ -125,11 +131,17 @@ public class PlayerLocomotion : NetworkBehaviour
         _currentMovement.z = worldDirection.z * _currentSpeed;
 
         handleJumping();
-        _characterController.Move(_currentMovement * Time.deltaTime);
+
+      
+        if (!isHidden)
+        {
+            _characterController.Move(_currentMovement * Time.deltaTime);
+        }
     }
 
     public void OnJump(InputAction.CallbackContext context)
     {
+        if (isHidden) return; 
         _jumpTriggered = context.performed;
     }
 
@@ -139,7 +151,7 @@ public class PlayerLocomotion : NetworkBehaviour
         {
             _currentMovement.y = -.5f;
 
-            if (_jumpTriggered && Stamina >= 1)
+            if (_jumpTriggered && Stamina >= 1 && !isHidden)
             {
                 takeStamina(20);
                 _currentMovement.y = _jumpForce;
@@ -153,7 +165,22 @@ public class PlayerLocomotion : NetworkBehaviour
 
     public void OnSprint(InputAction.CallbackContext context)
     {
+        if (isHidden) return; 
         isSprinting = context.ReadValueAsButton();
+    }
+
+    public void OnHide(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+
+        if (isHidden)
+        {
+            ExitHide();
+        }
+        else if (currentHideable != null && !currentHideable.isOccupied)
+        {
+            EnterHide(currentHideable);
+        }
     }
     #endregion Movement
 
@@ -161,19 +188,13 @@ public class PlayerLocomotion : NetworkBehaviour
     private void takeStamina(float amount)
     {
         Stamina -= amount;
-        if (Stamina <= 0)
-        {
-            Stamina = 0;
-        }
+        if (Stamina <= 0) Stamina = 0;
     }
 
     private void drainStamina(float amount)
     {
         Stamina -= (amount * Time.deltaTime);
-        if (Stamina <= 0)
-        {
-            Stamina = 0;
-        }
+        if (Stamina <= 0) Stamina = 0;
     }
 
     private void regenerateStamina()
@@ -216,8 +237,11 @@ public class PlayerLocomotion : NetworkBehaviour
         mainCamera.transform.localRotation = Quaternion.Euler(verticalRotation, 0, 0);
     }
 
-    private void handleRotation(){
-        if(!updatingRotation) return;
+    private void handleRotation()
+    {
+    
+        if (!updatingRotation || isHidden) return;
+
         switch (_playerInput.currentControlScheme)
         {
             case "Mouse & Keyboard":
@@ -245,24 +269,22 @@ public class PlayerLocomotion : NetworkBehaviour
 
     private void handleFlashLightBattery()
     {
-      bool lightOn = isFlashLightActive && !isPlayerDead && currentBatteryLife > 0 && !isSprinting && !_jumpTriggered;
+        bool lightOn = isFlashLightActive && !isPlayerDead && currentBatteryLife > 0 && !isSprinting && !_jumpTriggered;
 
         if (lightOn)
         {
-            currentBatteryLife = Mathf.Max(0, currentBatteryLife - batteryDrainSpeed * Time.deltaTime); // drains batter life over time
+            currentBatteryLife = Mathf.Max(0, currentBatteryLife - batteryDrainSpeed * Time.deltaTime);
         }
         else
         {
             currentBatteryLife = Mathf.Min(maxBatteryLife, currentBatteryLife + batteryRegenSpeed * Time.deltaTime);
         }
         handleFlashLight(lightOn);
-
-
     }
 
     private void handleFlashLight(bool isOn)
     {
-        if(light != null)
+        if (light != null)
         {
             light.enabled = isOn && !isPlayerDead;
         }
@@ -270,45 +292,108 @@ public class PlayerLocomotion : NetworkBehaviour
     #endregion Flashlight
 
     #region Networking Reference Getters
-    public Vector2 getMovement(Vector2 move)
-    {
-        moveInput = move;   
-        return move;
-    }
-    public Vector2 getLookRotation(Vector2 look)
-    {
-        lookInput = look;
-        return look;
-    }
-    public bool getJumpBool(bool isJumping)
-    {
-        _jumpTriggered = isJumping;
-        return isJumping;
-
-    }
-    public bool getSprintBool(bool IsSprinting)
-    {
-        isSprinting = IsSprinting;
-        return isSprinting;
-    }
-
-    public float getMouseSens()
-    {
-        return mouseSensitivity;
-    }
-    public float getGamepadSens()
-    {
-        return gamepadSensitivity;
-    }
+    public Vector2 getMovement(Vector2 move) { moveInput = move; return move; }
+    public Vector2 getLookRotation(Vector2 look) { lookInput = look; return look; }
+    public bool getJumpBool(bool isJumping) { _jumpTriggered = isJumping; return isJumping; }
+    public bool getSprintBool(bool IsSprinting) { isSprinting = IsSprinting; return isSprinting; }
+    public float getMouseSens() { return mouseSensitivity; }
+    public float getGamepadSens() { return gamepadSensitivity; }
     #endregion Networking Reference Getters
+
+    #region Hide Logic
+    private void CheckForHideableObject()
+    {
+        HideableObject bestTarget = null;
+        float closestDistance = Mathf.Infinity;
+
+ 
+        HideableObject[] allHideables = FindObjectsOfType<HideableObject>();
+
+        foreach (HideableObject hideable in allHideables)
+        {
+            if (hideable.isOccupied) continue;
+
+            float distance = Vector3.Distance(transform.position, hideable.transform.position);
+            if (distance < interactDistance && distance < closestDistance)
+            {
+                closestDistance = distance;
+                bestTarget = hideable;
+            }
+        }
+
+        currentHideable = bestTarget;
+
+        
+        if (currentHideable != null)
+        {
+            ShowPrompt();
+        }
+        else
+        {
+            HidePrompt();
+        }
+    }
+
+    private void ShowPrompt()
+    {
+        // TODO: Put your UI logic here (e.g., show "Press H to hide")
+        
+    }
+
+    private void HidePrompt()
+    {
+        // TODO: Put your UI logic here
+
+    }
+
+    private void EnterHide(HideableObject hideable)
+    {
+        isHidden = true;
+        hideable.isOccupied = true;
+        currentHideable = hideable;
+
+        originalPosition = transform.position;
+        originalRotation = transform.rotation;
+
+        
+        _characterController.enabled = false;
+
+        // Teleport player to the hide point
+        transform.position = hideable.hidePoint.position;
+        transform.rotation = hideable.hidePoint.rotation;
+
+        // Move the camera to the anchor under the table
+        if (hideable.cameraAnchor != null && mainCamera != null)
+        {
+            mainCamera.transform.position = hideable.cameraAnchor.position;
+            mainCamera.transform.rotation = hideable.cameraAnchor.rotation;
+        }
+
+        HidePrompt();
+    }
+
+    private void ExitHide()
+    {
+        if (currentHideable == null) return;
+
+        currentHideable.isOccupied = false;
+        currentHideable = null;
+        isHidden = false;
+
+        
+        transform.position = originalPosition;
+        transform.rotation = originalRotation;
+
+       
+        _characterController.enabled = true;
+    }
+    #endregion Hide Logic
 
     public void respawn()
     {
-        
     }
 
     public void spawnPlayer()
     {
-
     }
 }
